@@ -130,4 +130,5 @@ public class Board extends JPanel implements ActionListener {
             player.keyPressed(e);
         }
     }
+    //HEI HVA SKJER? STEM TRUMP!!! 
 }
