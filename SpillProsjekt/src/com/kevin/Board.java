@@ -24,14 +24,14 @@ public class Board extends JPanel implements ActionListener {
     private List<List<Tile>> map = new ArrayList<>();
     private Background bg;
 
-    public Board() {
+    public Board() 
+    {
 
         addKeyListener(new TAdapter());
         setFocusable(true);
         setBackground(Color.BLACK);
 
         player = new Player(this);
-        //enemies.add(new Enemy(craft));
         timer = new Timer(DELAY, this);
         timer.start();
         bg = new Background("background.png");
@@ -40,34 +40,33 @@ public class Board extends JPanel implements ActionListener {
         	ArrayList<Tile> temp=new ArrayList<>();
         	for(int j =0; j < 20; j++)
         	{
-        		temp.add(new Tile("tile.png", i*36, j*36));
+        		if (i == 0)
+        		{
+        			temp.add(new Boulder("boulder.png", i*36, j*36));
+        		}
+        		else if (i == 19)
+        		{
+        			temp.add(new Boulder("boulder.png", i*36, j*36));
+        		}
+        		else if (j == 0)
+        		{
+        			temp.add(new Boulder("boulder.png", i*36, j*36));
+        		}
+        		else if (j == 19)
+        		{
+        			temp.add(new Boulder("boulder.png", i*36, j*36));
+        		}
+        		else
+        		{
+        			temp.add(new Tile("tile.png", i*36, j*36));
+        		}
         	}
         	map.add(temp);
-        		//map.get()(new Tile("tile.png", (i%20)*36, 36*(i-(i%20))/20));
         }
-        setTile(10,10, new Boulder("boulder.png",10*36,10*36));
-        /*map.set(4*20+5,new Boulder("boulder.png",5*36,4*36));
-        map.set(5*20+5,new Boulder("boulder.png",5*36,5*36));
-        map.set(6*20+5,new Boulder("boulder.png",5*36,6*36));
-        map.set(7*20+6, new Boulder("boulder.png",6*36,7*36));*/
-        setArea(0,3,10,3, new Boulder("boulder.png", 0,0));
-        setArea(0,2,10,4,new Tile("block.png",0,0));
-        setArea(0,3,10,5, new Tile("ls.png", 0,0));
-        //setArea(10,2,12,10,new Tile("block.png",0,0));
+        setTile(5,5,new Tile("boulder.png", 5*36, 5*36));
     }
-    private void setArea(int startX, int startY, int endX, int endY, Tile t)
-    {
-    	for(int i = startX; i<endX; i++)
-    	{
-    		for(int j = startY; j<endY; j++)
-    		{
-    			/*map.set(20*j+i, new Tile(t));
-    			map.get(j).get(i).setX(i*36);
-    			map.get(20*j+i).setY(j*36);*/
-    		}
-    	}
-    }
-    private void setTile(int x, int y, Tile t)
+
+    public void setTile(int x, int y, Tile t)
     {
     	map.get(x).set(y, t);
     }
@@ -95,7 +94,13 @@ public class Board extends JPanel implements ActionListener {
         	}
         }
         g2d.drawImage(player.getImage(), player.getX(), player.getY(), this);
+        Bomb bomb = (Bomb) player.getBomb();
+        if (bomb != null)
+        {
+        	 g2d.drawImage(bomb.getImage(),bomb.getX(), bomb.getY(), this);
+        }
     }
+
 	public boolean isBoulder(int posX, int posY)
 	{
 		return (map.get(posX).get(posY) instanceof Boulder);
@@ -115,6 +120,10 @@ public class Board extends JPanel implements ActionListener {
         	}
         }
         player.tick();
+        if (player.getBomb() != null)
+        {
+            player.getBomb().tick();
+        }
         repaint();  
     }
 
@@ -130,5 +139,4 @@ public class Board extends JPanel implements ActionListener {
             player.keyPressed(e);
         }
     }
-    //HEI HVA SKJER? STEM TRUMP!!! 
 }

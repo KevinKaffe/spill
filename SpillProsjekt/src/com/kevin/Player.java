@@ -5,39 +5,27 @@ import java.awt.event.KeyEvent;
 import javax.swing.ImageIcon;
 
 public class Player {
-	private final int DELAY=10;
-	private int dx, dy, x, y, speed, hp,moveDelay, posX, posY;
+	private int x, y,hp;
+	private double velX, velY;
+	private double speed;
 	private Board parent;
+	private Tile bomb;
 	
 	private Image image;
 	public Player(Board board)
 	{
-		parent=board;
+		bomb = null;
+		parent = board;
 		ImageIcon ii = new ImageIcon("player.png");
 		image = ii.getImage();
-		speed =1;
-		x=0;
-		hp=100;
-		y=10;
-		posX=0;
-		posY=1;
-		moveDelay=0;
+		x = 1*36;
+		hp = 100;
+		y = 1*36;
+		velX = 0;
+		velY = 0;
+		speed = 2.0;
 	}
-	public void move()
-	{
-		if(moveDelay<=0)
-		{
-			if(parent.isBoulder(posX+dx, posY+dy))
-			{
-				return;
-			}
-			x+= 36*dx;
-			posX+=dx;
-			y+= 36*dy;
-			posY+=dy;
-			moveDelay=DELAY;
-		}
-	}
+
 	public int getX()
 	{
 		return x;
@@ -55,20 +43,36 @@ public class Player {
 		int key = e.getKeyCode();
 		if(key == KeyEvent.VK_LEFT)
 		{
-			dx=-speed;
+			velX = -speed;
 		}
 		else if(key==KeyEvent.VK_RIGHT)
 		{
-			dx=speed;
+			velX = speed;
 		}
 		else if(key==KeyEvent.VK_UP)
 		{
-			dy=-speed;
+			velY = -speed;
 		}
 		else if(key==KeyEvent.VK_DOWN)
 		{
-			dy=speed;
+			velY = speed;
 		}
+		else if (key == KeyEvent.VK_Z)
+		{
+			if (bomb == null)
+			{
+				bomb = new Bomb("bomb.png", getX(), getY()+20, this);
+			}
+		}
+	}
+
+	public void destroyBomb()
+	{
+		bomb = null;
+	}
+	public Tile getBomb()
+	{
+		return bomb;
 	}
 	public void decreaseHealth(int hp)
 	{
@@ -76,8 +80,15 @@ public class Player {
 	}
 	public void tick()
 	{
-		move();
-		moveDelay--;
+		x += velX;
+		y += velY;
+		
+		if (parent.isBoulder(x/36, y/36) || parent.isBoulder(x/36 + 1, y/36 + 1))
+		{
+			x -= velX;
+			y -= velY;
+		}
+		
 	}
 	
 	public void keyReleased(KeyEvent e)
@@ -85,19 +96,19 @@ public class Player {
 		int key = e.getKeyCode();
 		if(key == KeyEvent.VK_LEFT)
 		{
-			dx=0;
+			velX = 0;
 		}
 		else if(key==KeyEvent.VK_RIGHT)
 		{
-			dx=0;
+			velX = 0;
 		}
 		else if(key==KeyEvent.VK_UP)
 		{
-			dy=-0;
+			velY = 0;
 		}
 		else if(key==KeyEvent.VK_DOWN)
 		{
-			dy=0;
+			velY = 0;
 		}
 	}
 }
