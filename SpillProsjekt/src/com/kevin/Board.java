@@ -30,7 +30,7 @@ public class Board extends JPanel implements ActionListener {
         setFocusable(true);
         setBackground(Color.BLACK);
 
-        craft = new Player(this);
+        player = new Player(this);
         //enemies.add(new Enemy(craft));
         timer = new Timer(DELAY, this);
         timer.start();
@@ -45,10 +45,11 @@ public class Board extends JPanel implements ActionListener {
         	map.add(temp);
         		//map.get()(new Tile("tile.png", (i%20)*36, 36*(i-(i%20))/20));
         }
-        map.set(4*20+5,new Boulder("boulder.png",5*36,4*36));
+        setTile(10,10, new Boulder("boulder.png",10*36,10*36));
+        /*map.set(4*20+5,new Boulder("boulder.png",5*36,4*36));
         map.set(5*20+5,new Boulder("boulder.png",5*36,5*36));
         map.set(6*20+5,new Boulder("boulder.png",5*36,6*36));
-        map.set(7*20+6, new Boulder("boulder.png",6*36,7*36));
+        map.set(7*20+6, new Boulder("boulder.png",6*36,7*36));*/
         setArea(0,3,10,3, new Boulder("boulder.png", 0,0));
         setArea(0,2,10,4,new Tile("block.png",0,0));
         setArea(0,3,10,5, new Tile("ls.png", 0,0));
@@ -60,13 +61,16 @@ public class Board extends JPanel implements ActionListener {
     	{
     		for(int j = startY; j<endY; j++)
     		{
-    			map.set(20*j+i, new Tile(t));
-    			map.get(20*j+i).setX(i*36);
-    			map.get(20*j+i).setY(j*36);
+    			/*map.set(20*j+i, new Tile(t));
+    			map.get(j).get(i).setX(i*36);
+    			map.get(20*j+i).setY(j*36);*/
     		}
     	}
     }
-
+    private void setTile(int x, int y, Tile t)
+    {
+    	map.get(x).set(y, t);
+    }
 
     @Override
     public void paintComponent(Graphics g) {
@@ -94,7 +98,7 @@ public class Board extends JPanel implements ActionListener {
     }
 	public boolean isBoulder(int posX, int posY)
 	{
-		return (map.get(posY*20+posX) instanceof Boulder);
+		return (map.get(posX).get(posY) instanceof Boulder);
 	}
 
     @Override
@@ -103,8 +107,13 @@ public class Board extends JPanel implements ActionListener {
         {
         	enemy.tick();
         }
-        for(Tile tile:map)
-        	tile.tick();
+        for(List<Tile> line:map)
+        {
+        	for(Tile tile:line)
+        	{
+            	tile.tick();
+        	}
+        }
         player.tick();
         repaint();  
     }
