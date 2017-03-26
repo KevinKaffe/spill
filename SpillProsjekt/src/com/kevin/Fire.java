@@ -1,22 +1,22 @@
 package com.kevin;
 
-public class Bomb extends Tile {
-
+public class Fire extends Tile {
+	
+	private Player player;
 	private int delay;
 	private final int waitDestruction = 100;
-	private Player player;
 	private int tileX;
 	private int tileY;
-	public Bomb(String imgSrc, int x, int y, Player player, int tileX, int tileY) 
+
+	public Fire(String imgSrc, int x, int y, Player player, int tileX, int tileY)
 	{
-		super(imgSrc, x, y);
-		delay = waitDestruction;
+		super(imgSrc, x, y); 
 		this.player = player;
+		delay = waitDestruction;
 		this.tileX = tileX;
 		this.tileY = tileY;
 	}
-	
-	
+
 	@Override
 	public void tick()
 	{
@@ -29,11 +29,9 @@ public class Bomb extends Tile {
 		if (delay <= 0)
 		{
 			delay = waitDestruction;
-			player.explotion(getX(), getY());
-			player.destroyBomb();
+			player.destroyFire();
 		}
 	}
-	
 	public int getTileX()
 	{
 		return tileX;
@@ -43,5 +41,4 @@ public class Bomb extends Tile {
 	{
 		return tileY;
 	}
-
 }
