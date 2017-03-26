@@ -113,59 +113,16 @@ public class Board extends JPanel implements ActionListener {
 	     Fire fire2 = player.getFireNegX();
 	     Fire fire3 = player.getFirePosY();
 	   	 Fire fire4 = player.getFireNegY();
-	   	 for (int i = 0; i <5; i++)
-	   	 {
-		   	 if	 (fire1 != null)
-		   	 {
-		   		 if (isBoulder(fire1.getTileX()+i, fire1.getTileY()))
-		   		 {
-		   			 break;
-		   		 }
-		   		 g2d.drawImage(fire1.getImage(), fire1.getX()+i*36,fire1.getY(), this);
-		   		 
-		   		 setTile(fire1.getTileX() + i, fire1.getTileY(),
-		   				 new Tower("road.png", fire1.getX()+i*36 - player.adjustX+2,fire1.getY() - player.adjustY));
-		   	 }
-	   	 }
-	   	 for (int i =0; i < 5; i++)
-	   	 {
-		   	 if (fire2 != null)
-		   	 {
-		   		if (isBoulder(fire1.getTileX()-i, fire1.getTileY()))
-		   		 {
-		   			 break;
-		   		 }
-		   		 g2d.drawImage(fire2.getImage(), fire2.getX()-i*36,fire2.getY(), this); 
-		   		 setTile(fire1.getTileX() - i, fire1.getTileY(),
-		   				 new Tower("road.png", fire1.getX()-i*36 - player.adjustX+2,fire1.getY() - player.adjustY));
-		   	 }
-	   	 }
-	   	 for (int i = 0; i < 5; i++)
-	   	 {
-		   	 if (fire3 != null)
-		   	 {
-		   		if (isBoulder(fire1.getTileX(), fire1.getTileY() + i))
-		   		 {
-		   			 break;
-		   		 }
-		   		 g2d.drawImage(fire3.getImage(), fire3.getX(),fire3.getY()+i*36, this);
-		   		 setTile(fire1.getTileX(), fire1.getTileY() + i,
-		   				 new Tower("road.png", fire1.getX() - player.adjustX+2,fire1.getY()+i*36 - player.adjustY));
-		   	 }
-	   	 }
-	   	 for (int i = 0; i < 5; i++)
-	   	 {
-		   	 if (fire4 != null)
-		   	 {
-		   		if (isBoulder(fire1.getTileX(), fire1.getTileY() - i))
-		   		 {
-		   			 break;
-		   		 }
-		       	 g2d.drawImage(fire4.getImage(), fire4.getX(),fire4.getY()-i*36, this);
-		       	 setTile(fire1.getTileX(), fire1.getTileY() - i,
-		       			 new Tower("road.png", fire1.getX() - player.adjustX+2,fire1.getY() - i*36 - player.adjustY));
-		   	 }
-	   	 }
+
+	   	 explotion(g2d, fire1, 1,0);
+
+
+	   	 explotion(g2d, fire2, -1,0);
+
+	   	explotion(g2d, fire3, 0,1);
+
+		  explotion(g2d, fire4, 0,-1);
+
 	   //-----------------------------------------
    }
 
@@ -224,5 +181,22 @@ public class Board extends JPanel implements ActionListener {
         public void keyPressed(KeyEvent e) {
             player.keyPressed(e);
         }
+    }
+    
+    private void explotion(Graphics2D g2d,Fire fire, int posOrNegX, int posOrNegY)
+    {
+    	for (int i = 0; i < 5; i++)
+	   	{
+	    	if (fire != null)
+		   	 {
+		   		if (isBoulder(fire.getTileX()+posOrNegX*i, fire.getTileY() + posOrNegY*i))
+		   		{
+		   			break;
+		   		}
+		       	 g2d.drawImage(fire.getImage(), fire.getX()+posOrNegX*i*36,fire.getY()+posOrNegY*i*36, this);
+		       	 setTile(fire.getTileX() + posOrNegX*i, fire.getTileY() + posOrNegY*i,
+		       			 new Tower("road.png", fire.getX() - player.adjustX+2 + 36*i*posOrNegX,fire.getY() + i*36*posOrNegY - player.adjustY));
+		   	 }
+	   	}
     }
 }
