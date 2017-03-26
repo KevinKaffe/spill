@@ -116,12 +116,11 @@ public class Board extends JPanel implements ActionListener {
 
 	   	 explotion(g2d, fire1, 1,0);
 
-
 	   	 explotion(g2d, fire2, -1,0);
 
-	   	explotion(g2d, fire3, 0,1);
+	   	 explotion(g2d, fire3, 0,1);
 
-		  explotion(g2d, fire4, 0,-1);
+	   	 explotion(g2d, fire4, 0,-1);
 
 	   //-----------------------------------------
    }
@@ -185,7 +184,7 @@ public class Board extends JPanel implements ActionListener {
     
     private void explotion(Graphics2D g2d,Fire fire, int posOrNegX, int posOrNegY)
     {
-    	for (int i = 0; i < 5; i++)
+    	for (int i = 0; i < player.getFireLevel(); i++)
 	   	{
 	    	if (fire != null)
 		   	 {

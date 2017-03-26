@@ -5,6 +5,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.ImageIcon;
 
 public class Player {
+	private int fireLevel;
 	private int x, y,hp;
 	private int tileX; // spillers posisjon på "map"
 	private int tileY;
@@ -22,6 +23,7 @@ public class Player {
 	private Image image;
 	public Player(Board board)
 	{
+		fireLevel = 5;
 		bomb = null;
 		parent = board;
 		ImageIcon ii = new ImageIcon("player.png");
@@ -36,6 +38,10 @@ public class Player {
 		tileY = Math.round(y/36) + 1;
 	}
 
+	public int getFireLevel()
+	{
+		return fireLevel;
+	}
 	public int getX()
 	{
 		return x;
