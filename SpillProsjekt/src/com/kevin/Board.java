@@ -19,9 +19,8 @@ import javax.swing.Timer;
 public class Board extends JPanel implements ActionListener {
 
     private Timer timer;
-    private Player player;
-    private final int DELAY = 10;
-    private List<Enemy> enemies = new ArrayList<>();
+    private final int DELAY = 1000/60;
+    private List<Player> players = new ArrayList<>();
     private List<List<Tile>> map = new ArrayList<>();
     private Background bg;
     private UserInterface UI;
@@ -33,7 +32,8 @@ public class Board extends JPanel implements ActionListener {
         setFocusable(true);
         setBackground(Color.BLACK);
 
-        player = new Player(this, PlayerType.Player1);
+        players.add(new Player(this, PlayerType.Player1));
+        players.add(new Player(this, PlayerType.Player2));
         timer = new Timer(DELAY, this);
         timer.start();
         bg = new Background("background.png");
@@ -61,7 +61,7 @@ public class Board extends JPanel implements ActionListener {
         		}
         		else
         		{
-        			temp.add(new Tile("tile.png", i*36, j*36));
+        			temp.add(new Tile("road.png", i*36, j*36));
         		}
         	}
         	map.add(temp);
@@ -99,8 +99,7 @@ public class Board extends JPanel implements ActionListener {
         
         Graphics2D g2d = (Graphics2D) g;
         g2d.drawImage(bg.getImage(), 0, 0, this);
-        for(Enemy enemy:enemies)
-        	g2d.drawImage(enemy.getImage(), enemy.getX(), enemy.getY(), this);
+
         for(List<Tile> line:map)
         {
         	for(Tile tile:line)
@@ -108,24 +107,34 @@ public class Board extends JPanel implements ActionListener {
             	g2d.drawImage(tile.getImage(), tile.getX(), tile.getY(), this);
         	}
         }
-        g2d.drawImage(player.getImage(), player.getX(), player.getY(), this);
+        for (Player current : players)
+        {
+        	 g2d.drawImage(current.getImage(), current.getX(), current.getY(), this);
+        }
+       
         
         //---------- BOMBS'N EXPLOTIONS -----------------------
-        for(Bomb bomb:player.getBombs())
+        for (Player current : players)
         {
-        	g2d.drawImage(bomb.getImage(),bomb.getX(), bomb.getY(), this);
+            for(Bomb bomb:current.getBombs())
+            {
+            	g2d.drawImage(bomb.getImage(),bomb.getX(), bomb.getY(), this);
+            }
+            for(Fire fire: current.getFires())
+            {
+
+       	   	 explotionRealTime(g2d, fire, 1,0, 0, current);
+
+      	   	 explotionRealTime(g2d, fire, -1,0, 1, current);
+
+      	   	 explotionRealTime(g2d, fire, 0,1, 2, current);
+
+      	   	 explotionRealTime(g2d, fire, 0,-1, 3, current);
+            }
+        	
         }
-        for(Fire fire: player.getFires())
-        {
-
-   	   	 explotionRealTime(g2d, fire, 1,0, 0);
-
-  	   	 explotionRealTime(g2d, fire, -1,0, 1);
-
-  	   	 explotionRealTime(g2d, fire, 0,1, 2);
-
-  	   	 explotionRealTime(g2d, fire, 0,-1, 3);
-        }
+       
+  
 //        }
 
 
@@ -157,10 +166,7 @@ public class Board extends JPanel implements ActionListener {
 	
     @Override
     public void actionPerformed(ActionEvent e) {
-        for(Enemy enemy:enemies)
-        {
-        	enemy.tick();
-        }
+       
         for(List<Tile> line:map)
         {
         	for(Tile tile:line)
@@ -169,15 +175,19 @@ public class Board extends JPanel implements ActionListener {
         	}
         }
         
-        for(Bomb bomb:player.getBombs())
+        for (Player player : players)
         {
-        	bomb.tick();
+            for(Bomb bomb:player.getBombs())
+            {
+            	bomb.tick();
+            }
+            for(Fire fire:player.getFires())
+            {
+            	fire.tick();
+            }
+            player.tick();
         }
-        for(Fire fire:player.getFires())
-        {
-        	fire.tick();
-        }
-        player.tick();
+    
         repaint();  
     }
 
@@ -185,16 +195,23 @@ public class Board extends JPanel implements ActionListener {
 
         @Override
         public void keyReleased(KeyEvent e) {
-            player.keyReleased(e);
+        	for (Player player : players)
+        	{
+        		player.keyReleased(e);
+        	}
+            
         }
 
         @Override
         public void keyPressed(KeyEvent e) {
-            player.keyPressed(e);
+        	for (Player player : players)
+        	{
+        		player.keyPressed(e);
+        	}
         }
     }
     
-    private void explotionRealTime(Graphics2D g2d,Fire fire, int posOrNegX, int posOrNegY, int index)
+    private void explotionRealTime(Graphics2D g2d,Fire fire, int posOrNegX, int posOrNegY, int index, Player player)
     {
     	for (int i = 0; i < player.getFireLevel(); i++)
 	   	{
@@ -215,7 +232,7 @@ public class Board extends JPanel implements ActionListener {
 		   		if (isBox(fire.getTileX() + posOrNegX*i, fire.getTileY() + posOrNegY*i))
 		   		{  		
 		   			setTile(fire.getTileX() + posOrNegX*i, fire.getTileY() + posOrNegY*i,
-			   				new Tile("tile.png", fire.getX() - player.adjustX+2 + 36*i*posOrNegX,fire.getY() + i*36*posOrNegY - player.adjustY));
+			   				new Tile("road.png", fire.getX() - player.adjustX+2 + 36*i*posOrNegX,fire.getY() + i*36*posOrNegY - player.adjustY));
 		   			fire.setBoundry(i, index);
 		   		}
 		       	g2d.drawImage(fire.getImage(), fire.getX()+posOrNegX*i*36,fire.getY()+posOrNegY*i*36, this);
