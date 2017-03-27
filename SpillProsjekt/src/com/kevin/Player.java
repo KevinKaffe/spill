@@ -12,8 +12,10 @@ public class Player {
 	private int fireLevel;
 	private boolean[] keysDown ={false,false,false,false};//For � ikke f� delay n�r man f�rst g�r en vei s� snur
 	private int x, y,hp,maxBombs;
-	private int tileX; // spillers posisjon på "map"
-	private int tileY;
+	private int lowerTileX; // spillers posisjon på "map"
+	private int lowerTileY;
+	private int upperTileX;
+	private int upperTileY;
 	private double velX, velY;
 	private double speed;
 	private PlayerType type;
@@ -44,8 +46,10 @@ public class Player {
 		velX = 0;
 		velY = 0;
 		speed = 5.0;
-		tileX = Math.round(x/36);
-		tileY = Math.round(y/36) + 1;
+		lowerTileX = Math.round(x/36);
+		upperTileX=Math.round((x+image.getWidth(parent))/36);
+		lowerTileY = Math.round(y/36) + 1;
+		upperTileY = Math.round((y-image.getHeight(parent))/36);
 	}
 
 	public int getFireLevel()
@@ -137,7 +141,7 @@ public class Player {
 		x += velX;
 		y += velY;
 		tileX = Math.round(x/36);
-		tileY = Math.round(y/36) + 1; 
+		tileY = Math.round(y/36)+1; 
 		//System.out.println(tileX + "   " + tileY); //printer hele tiden spilleren sin posisjon i "map"
 		
 		// spilleren kan ikke gå utafor kanten (y-retning er litt rar)
@@ -159,7 +163,7 @@ public class Player {
 		}
 		
 		//spiller kan ikke gå på "boulder" på brettet 
-		else if (parent.isBoulder(tileX, tileY) || parent.isBoulder(tileX+1, tileY))
+		else if (parent.isBoulder(lowerTileX, lowerTileY) || parent.isBoulder(upperTileX, lowerTileY)||parent.isBoulder(upperTileX, upperTileY) || parent.isBoulder(lowerTileX, upperTileY))
 		{
 			x -= velX;
 			y -= velY;
