@@ -120,11 +120,11 @@ public class Board extends JPanel implements ActionListener {
 
    	   	 explotionRealTime(g2d, fire, 1,0, 0);
 
-//   	   	 explotionRealTime(g2d, fire, -1,0, 1);
-//
-//   	   	 explotionRealTime(g2d, fire, 0,1, 2);
-//
-//   	   	 explotionRealTime(g2d, fire, 0,-1, 3);
+  	   	 explotionRealTime(g2d, fire, -1,0, 1);
+
+  	   	 explotionRealTime(g2d, fire, 0,1, 2);
+
+  	   	 explotionRealTime(g2d, fire, 0,-1, 3);
         }
 //        }
 

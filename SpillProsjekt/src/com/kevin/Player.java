@@ -130,8 +130,10 @@ public class Player {
 		{
 			fires.remove(set);
 		}
-		fire_removal_queue = new ArrayList<>();
-		bomb_removal_queue = new ArrayList<>();
+		if(!fire_removal_queue.isEmpty())
+			fire_removal_queue = new ArrayList<>();
+		if(!bomb_removal_queue.isEmpty())
+			bomb_removal_queue = new ArrayList<>();
 		x += velX;
 		y += velY;
 		tileX = Math.round(x/36);
