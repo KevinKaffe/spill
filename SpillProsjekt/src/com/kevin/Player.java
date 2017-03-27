@@ -38,7 +38,15 @@ public class Player {
 		this.type=type;
 		fireLevel = 5;
 		parent = board;
-		ImageIcon ii = new ImageIcon("player.png");
+		ImageIcon ii;
+		if (type == PlayerType.Player1)
+		{
+			ii = new ImageIcon("player.png");
+		}
+		else{
+			ii = new ImageIcon("craft.png");
+		}
+		
 		image = ii.getImage();
 		x = 2*36;
 		hp = 100;
@@ -97,10 +105,43 @@ public class Player {
 			{
 				velY = speed;
 			}
-			else if (key == KeyEvent.VK_Z)
+			else if (key == KeyEvent.VK_SHIFT)
 			{
 				if (bombs.size()<maxBombs)
 				{
+		
+					bombs.add(new Bomb("bomb.png", Math.round(getX()/36)*36+36 + adjustX, Math.round(getY()/36)*36+36 + adjustY, this, 
+							Math.round(getX()/36)+1, Math.round(getY()/36)+1));
+					//parent.setTile((bomb.getX()+7)/36, (bomb.getY()+10)/36,new Boulder("boulder.png", bomb.getX()+7, bomb.getY()+10));
+					//System.out.println("X: " + bomb.getTileX() + "  Y: " + bomb.getTileY());
+					//Må justere for å plassere midt på en tile, samtidig som vi må matche med parent.map
+				}
+			}
+			
+		}
+		else if(type==PlayerType.Player2)
+		{
+			if(key == KeyEvent.VK_A)
+			{
+				velX = -speed;
+			}
+			else if(key==KeyEvent.VK_D)
+			{
+				velX = speed;
+			}
+			else if(key==KeyEvent.VK_W)
+			{
+				velY = -speed;
+			}
+			else if(key==KeyEvent.VK_S)
+			{
+				velY = speed;
+			}
+			else if (key == KeyEvent.VK_T)
+			{
+				if (bombs.size()<maxBombs)
+				{
+		
 					bombs.add(new Bomb("bomb.png", Math.round(getX()/36)*36+36 + adjustX, Math.round(getY()/36)*36+36 + adjustY, this, 
 							Math.round(getX()/36)+1, Math.round(getY()/36)+1));
 					//parent.setTile((bomb.getX()+7)/36, (bomb.getY()+10)/36,new Boulder("boulder.png", bomb.getX()+7, bomb.getY()+10));
@@ -179,22 +220,45 @@ public class Player {
 	public void keyReleased(KeyEvent e)
 	{
 		int key = e.getKeyCode();
-		if(key == KeyEvent.VK_LEFT)
+		if (type == PlayerType.Player1)
 		{
-			velX = 0;
+			if(key == KeyEvent.VK_LEFT)
+			{
+				velX = 0;
+			}
+			else if(key==KeyEvent.VK_RIGHT)
+			{
+				velX = 0;
+			}
+			else if(key==KeyEvent.VK_UP)
+			{
+				velY = 0;
+			}
+			else if(key==KeyEvent.VK_DOWN)
+			{
+				velY = 0;
+			}
 		}
-		else if(key==KeyEvent.VK_RIGHT)
+		else if (type == PlayerType.Player2)
 		{
-			velX = 0;
+			if(key == KeyEvent.VK_A)
+			{
+				velX = 0;
+			}
+			else if(key==KeyEvent.VK_D)
+			{
+				velX = 0;
+			}
+			else if(key==KeyEvent.VK_W)
+			{
+				velY = 0;
+			}
+			else if(key==KeyEvent.VK_S)
+			{
+				velY = 0;
+			}
 		}
-		else if(key==KeyEvent.VK_UP)
-		{
-			velY = 0;
-		}
-		else if(key==KeyEvent.VK_DOWN)
-		{
-			velY = 0;
-		}
+		
 	}
 	
 	//lager flammer i hver retning
