@@ -75,6 +75,10 @@ public class Board extends JPanel implements ActionListener {
         	}
         	 
         }
+        setTile(10,10, new Box ("box.png", 10*36, 10*36));
+        setTile(11,11, new Box ("box.png", 11*36, 11*36));
+        setTile(11,10, new Box ("box.png", 11*36, 10*36));
+        setTile(10,11, new Box ("box.png", 10*36, 11*36));
     }
 
     public void setTile(int x, int y, Tile t)
@@ -111,21 +115,18 @@ public class Board extends JPanel implements ActionListener {
         {
         	g2d.drawImage(bomb.getImage(),bomb.getX(), bomb.getY(), this);
         }
-        for(FireSet fires: player.getFires())
+        for(Fire fire: player.getFires())
         {
-   	     Fire fire1 = fires.getFirePos(0);
-   	     Fire fire2 = fires.getFirePos(1);
-   	     Fire fire3 = fires.getFirePos(2);
-   	   	 Fire fire4 = fires.getFirePos(3);
 
-   	   	 explosion(g2d, fire1, 1,0);
+   	   	 explotionRealTime(g2d, fire, 1,0, 0);
 
-   	   	 explosion(g2d, fire2, -1,0);
-
-   	   	 explosion(g2d, fire3, 0,1);
-
-   	   	 explosion(g2d, fire4, 0,-1);
+//   	   	 explotionRealTime(g2d, fire, -1,0, 1);
+//
+//   	   	 explotionRealTime(g2d, fire, 0,1, 2);
+//
+//   	   	 explotionRealTime(g2d, fire, 0,-1, 3);
         }
+//        }
 
 
 	   //-----------------------------------------
@@ -149,6 +150,11 @@ public class Board extends JPanel implements ActionListener {
 		return (map.get(posX).get(posY) instanceof Boulder);
 	}
 
+	public boolean isBox(int posX, int posY)
+	{
+		return (map.get(posX).get(posY) instanceof Box);
+	}
+	
     @Override
     public void actionPerformed(ActionEvent e) {
         for(Enemy enemy:enemies)
@@ -167,9 +173,9 @@ public class Board extends JPanel implements ActionListener {
         {
         	bomb.tick();
         }
-        for(FireSet fires:player.getFires())
+        for(Fire fire:player.getFires())
         {
-        	fires.tick();
+        	fire.tick();
         }
         player.tick();
         repaint();  
@@ -188,12 +194,13 @@ public class Board extends JPanel implements ActionListener {
         }
     }
     
-    private void explosion(Graphics2D g2d,Fire fire, int posOrNegX, int posOrNegY)
+    private void explotionRealTime(Graphics2D g2d,Fire fire, int posOrNegX, int posOrNegY, int index)
     {
     	for (int i = 0; i < player.getFireLevel(); i++)
 	   	{
-	    	if (fire != null)
+	    	if (i < fire.getBoundry(index))
 		   	 {
+	    		System.out.println(i);
 		   		if (isBoulder(fire.getTileX()+posOrNegX*i, fire.getTileY() + posOrNegY*i))
 		   		{
 		   			break;
@@ -205,10 +212,19 @@ public class Board extends JPanel implements ActionListener {
 		   				bomb.explodeMe();
 		   			}
 		   		}
-		       	 g2d.drawImage(fire.getImage(), fire.getX()+posOrNegX*i*36,fire.getY()+posOrNegY*i*36, this);
-		       	 setTile(fire.getTileX() + posOrNegX*i, fire.getTileY() + posOrNegY*i,
-		       			 new Tower("road.png", fire.getX() - player.adjustX+2 + 36*i*posOrNegX,fire.getY() + i*36*posOrNegY - player.adjustY));
+		   		if (isBox(fire.getTileX() + posOrNegX*i, fire.getTileY() + posOrNegY*i))
+		   		{  		
+		   			setTile(fire.getTileX() + posOrNegX*i, fire.getTileY() + posOrNegY*i,
+			   				new Tile("tile.png", fire.getX() - player.adjustX+2 + 36*i*posOrNegX,fire.getY() + i*36*posOrNegY - player.adjustY));
+		   			fire.setBoundry(i, index);
+		   		}
+		       	g2d.drawImage(fire.getImage(), fire.getX()+posOrNegX*i*36,fire.getY()+posOrNegY*i*36, this);
 		   	 }
+	    	else if (i == fire.getBoundry(index))
+	    	{
+	    		g2d.drawImage(fire.getImage(), fire.getX()+posOrNegX*i*36,fire.getY()+posOrNegY*i*36, this);
+	    	}
 	   	}
     }
+
 }

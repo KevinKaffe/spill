@@ -10,7 +10,7 @@ import javax.swing.ImageIcon;
 
 public class Player {
 	private int fireLevel;
-	private boolean[] keysDown ={false,false,false,false};//For å ikke få delay når man først går en vei så snur
+	private boolean[] keysDown ={false,false,false,false};//For ï¿½ ikke fï¿½ delay nï¿½r man fï¿½rst gï¿½r en vei sï¿½ snur
 	private int x, y,hp,maxBombs;
 	private int tileX; // spillers posisjon pÃ¥ "map"
 	private int tileY;
@@ -24,8 +24,8 @@ public class Player {
 	private Fire fireNegX;
 	private Fire firePosY;
 	private Fire fireNegY;*/
-	private List<FireSet> fires = new ArrayList<>();
-	private Collection<FireSet> fire_removal_queue = new ArrayList<>();
+	private List<Fire> fires = new ArrayList<>();
+	private Collection<Fire> fire_removal_queue = new ArrayList<>();
 	public static final int adjustX = -7;   // mÃ¥te justere for Ã¥ at det skulle se pent ut 
 	public static final int adjustY = -10;
 	
@@ -43,7 +43,7 @@ public class Player {
 		y = 2*36;
 		velX = 0;
 		velY = 0;
-		speed = 2.0;
+		speed = 5.0;
 		tileX = Math.round(x/36);
 		tileY = Math.round(y/36) + 1;
 	}
@@ -126,7 +126,7 @@ public class Player {
 		{
 			bombs.remove(b);
 		}
-		for(FireSet set:fire_removal_queue)
+		for(Fire set:fire_removal_queue)
 		{
 			fires.remove(set);
 		}
@@ -136,7 +136,7 @@ public class Player {
 		y += velY;
 		tileX = Math.round(x/36);
 		tileY = Math.round(y/36) + 1; 
-		System.out.println(tileX + "   " + tileY); //printer hele tiden spilleren sin posisjon i "map"
+		//System.out.println(tileX + "   " + tileY); //printer hele tiden spilleren sin posisjon i "map"
 		
 		// spilleren kan ikke gÃ¥ utafor kanten (y-retning er litt rar)
 		if (tileX == 0)
@@ -158,6 +158,11 @@ public class Player {
 		
 		//spiller kan ikke gÃ¥ pÃ¥ "boulder" pÃ¥ brettet 
 		else if (parent.isBoulder(tileX, tileY) || parent.isBoulder(tileX+1, tileY))
+		{
+			x -= velX;
+			y -= velY;
+		}
+		else if (parent.isBox(tileX, tileY) || parent.isBox(tileX+1, tileY))
 		{
 			x -= velX;
 			y -= velY;
@@ -190,18 +195,15 @@ public class Player {
 	public void explotion(int x, int y)
 	{
 		// bÃ¥de bomber og flammer har en posisjon pÃ¥ "map"  og en faktisk posisjon pÃ¥ lÃ¦rettet 
-		Fire f1 = new Fire ("fire.png", x-2,y, this, (x+7)/36, (y+10)/36); 
-		Fire f2 = new Fire ("fire.png", x-2,y, this, (x+7)/36, (y+10)/36);
-		Fire f3 = new Fire ("fire.png", x-2,y, this, (x+7)/36, (y+10)/36);
-		Fire f4 = new Fire ("fire.png", x-2,y, this, (x+7)/36, (y+10)/36);
-		fires.add(new FireSet(f1,f2,f3,f4, this));
+		Fire f = new Fire ("fire.png", x-2,y, this, (x+7)/36, (y+10)/36); 
+		fires.add(f);
 	}
 	
-	public void destroyFire(FireSet set)
+	public void destroyFire(Fire set)
 	{
 		fire_removal_queue.add(set);
 	}
-	public List<FireSet> getFires()
+	public List<Fire> getFires()
 	{
 		return fires;
 	}
