@@ -37,7 +37,7 @@ public class Board extends JPanel implements ActionListener {
         timer = new Timer(DELAY, this);
         timer.start();
         bg = new Background("background.png");
-        UI = new UserInterface(0,720);
+        UI = new UserInterface(720,0);
         for(int i =0; i <20; i++)
         {
         	ArrayList<Tile> temp=new ArrayList<>();
@@ -139,11 +139,7 @@ public class Board extends JPanel implements ActionListener {
 
 
 	   //-----------------------------------------
-	   	g2d.drawImage(UI.getImage(),0, 720, this);
-	   	for(Image i:UI.getImageIcons())
-	   	{
-		   	g2d.drawImage(i,100, 730, this);
-	   	}
+	   	g2d.drawImage(UI.getImage(),UI.getX(), UI.getY(), this);
 	   	for(Element elem:UI.getElements())
 	   	{
 	   		for(Triplette icon:elem.getIcons())
@@ -240,6 +236,7 @@ public class Board extends JPanel implements ActionListener {
 	    	else if (i == fire.getBoundry(index))
 	    	{
 	    		g2d.drawImage(fire.getImage(), fire.getX()+posOrNegX*i*36,fire.getY()+posOrNegY*i*36, this);
+	    		break;
 	    	}
 	   	}
     }
