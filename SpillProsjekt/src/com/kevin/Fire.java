@@ -4,7 +4,7 @@ public class Fire extends Tile {
 	
 	private Player player;
 	private int delay;
-	private final int waitDestruction = 100;
+	private final int waitDestruction = 40;
 	private int tileX;
 	private int tileY;
 	private int[] boundary = {100,100,100,100};

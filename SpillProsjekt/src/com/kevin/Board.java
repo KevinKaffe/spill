@@ -1,6 +1,7 @@
 package com.kevin;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -23,7 +24,7 @@ public class Board extends JPanel implements ActionListener {
     private List<Player> players = new ArrayList<>();
     private List<List<Tile>> map = new ArrayList<>();
     private Background bg;
-    private UserInterface UI;
+    private static UserInterface UI;
 
     public Board() 
     {
@@ -32,12 +33,12 @@ public class Board extends JPanel implements ActionListener {
         setFocusable(true);
         setBackground(Color.BLACK);
 
-        players.add(new Player(this, PlayerType.Player1));
-        players.add(new Player(this, PlayerType.Player2));
+        players.add(new Player(this, PlayerType.Player1,0));
+        players.add(new Player(this, PlayerType.Player2,1));
         timer = new Timer(DELAY, this);
         timer.start();
         bg = new Background("background.png");
-        UI = new UserInterface(0,720);
+        UI = new UserInterface(720,0);
         for(int i =0; i <20; i++)
         {
         	ArrayList<Tile> temp=new ArrayList<>();
@@ -89,7 +90,7 @@ public class Board extends JPanel implements ActionListener {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-
+        g.setFont(new Font("Century", Font.BOLD, 14));
         doDrawing(g);
 
         Toolkit.getDefaultToolkit().sync();
@@ -142,16 +143,16 @@ public class Board extends JPanel implements ActionListener {
 
 
 	   //-----------------------------------------
-	   	g2d.drawImage(UI.getImage(),0, 720, this);
-	   	for(Image i:UI.getImageIcons())
-	   	{
-		   	g2d.drawImage(i,100, 730, this);
-	   	}
+	   	g2d.drawImage(UI.getImage(),UI.getX(), UI.getY(), this);
 	   	for(Element elem:UI.getElements())
 	   	{
 	   		for(Triplette icon:elem.getIcons())
 	   		{
 	   			g2d.drawImage(icon.getImg(),icon.getVal1(), icon.getVal2(), this);
+	   		}
+	   		for(Triplette strings:elem.getStrings())
+	   		{
+	   			g2d.drawString(strings.getString(), strings.getVal1(), strings.getVal2());
 	   		}
 	   	}
    }
@@ -213,7 +214,10 @@ public class Board extends JPanel implements ActionListener {
         	}
         }
     }
-    
+    public static UserInterface get_ui()
+    {
+    	return UI;
+    }
     private void explotionRealTime(Graphics2D g2d,Fire fire, int posOrNegX, int posOrNegY, int index, Player player)
     {
     	for (int i = 0; i < player.getFireLevel(); i++)
@@ -241,7 +245,7 @@ public class Board extends JPanel implements ActionListener {
 		   		{
 		   			if (fire.getTileX() + posOrNegX*i == playerCurrent.getTileX() && fire.getTileY() + posOrNegY*i == playerCurrent.getTileY())
 		   			{
-		   				playerCurrent.setDamage(1);
+		   				playerCurrent.decreaseHealth();
 		   			}
 		   		}
 		       	g2d.drawImage(fire.getImage(), fire.getX()+posOrNegX*i*36,fire.getY()+posOrNegY*i*36, this);
@@ -249,6 +253,7 @@ public class Board extends JPanel implements ActionListener {
 	    	else if (i == fire.getBoundry(index))
 	    	{
 	    		g2d.drawImage(fire.getImage(), fire.getX()+posOrNegX*i*36,fire.getY()+posOrNegY*i*36, this);
+	    		break;
 	    	}
 	   	}
     }

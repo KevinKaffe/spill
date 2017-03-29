@@ -11,9 +11,12 @@ import javax.swing.ImageIcon;
 public class Player {
 	private int fireLevel;
 	private boolean[] keysDown ={false,false,false,false};//For � ikke f� delay n�r man f�rst g�r en vei s� snur
-	private int x, y,hp,maxBombs;
-	private int tileX; // spillers posisjon på "map"
-	private int tileY;
+	private int x, y,hp,maxBombs,id,invincibility;
+	private boolean dead;
+	private int lowerTileX; // spillers posisjon på "map"
+	private int lowerTileY;
+	private int upperTileX;
+	private int upperTileY;
 	private double velX, velY;
 	private double speed;
 	private boolean isDead = false;
@@ -21,18 +24,17 @@ public class Player {
 	private Board parent;
 	private List<Bomb> bombs = new ArrayList<>();
 	private Collection<Bomb> bomb_removal_queue = new ArrayList<>();
-	/*private Fire firePosX;
-	private Fire fireNegX;
-	private Fire firePosY;
-	private Fire fireNegY;*/
 	private List<Fire> fires = new ArrayList<>();
 	private Collection<Fire> fire_removal_queue = new ArrayList<>();
 	public static final int adjustX = -7;   // måte justere for å at det skulle se pent ut 
 	public static final int adjustY = -10;
+	private final int invincibilityCoolDownForAASjekkeOmSpillerenEndaKanDoEllerOmHanFortsattIkkeSkalMisteLivNaarHanBlirTruffetAvEnFlamme_DenneCooldownSkalVearePaaRundt100MS=110;
 	
-	private Image image;
-	public Player(Board board, PlayerType type)
+	private Image image,trueImage;
+	public Player(Board board, PlayerType type, int id)
 	{
+		dead =false;
+		this.id=id;
 		maxBombs=3;
 		this.type=type;
 		fireLevel = 5;
@@ -49,16 +51,23 @@ public class Player {
 			x = 16*36;
 			y = 16*36;
 		}
-		
+		trueImage=ii.getImage();
 		image = ii.getImage();
+
 		
 		hp = 200*3;
 		
+
+		x = 4*36;
+		hp = 3;
+		y = 4*36;
 		velX = 0;
 		velY = 0;
-		speed = 5.0;
-		tileX = Math.round(x/36);
-		tileY = Math.round(y/36) + 1;
+		speed = 4.0;
+		lowerTileX = Math.round(x/36);
+		upperTileX=Math.round((x+image.getWidth(parent)/2)/36);
+		lowerTileY = Math.round(y/36) + 1;
+		upperTileY = Math.round((y-image.getHeight(parent)/4)/36)+1;
 	}
 
 	public boolean getIsDead()
@@ -79,11 +88,11 @@ public class Player {
 	}
 	public int getTileX()
 	{
-		return tileX;
+		return lowerTileX;
 	}
 	public int getTileY()
 	{
-		return tileY;
+		return lowerTileY;
 	}
 	public Image getImage()
 	{
@@ -115,8 +124,8 @@ public class Player {
 				if (bombs.size()<maxBombs)
 				{
 		
-					bombs.add(new Bomb("bomb.png", Math.round(getX()/36)*36+36 + adjustX, Math.round(getY()/36)*36+36 + adjustY, this, 
-							Math.round(getX()/36)+1, Math.round(getY()/36)+1));
+					bombs.add(new Bomb("bomb.png", Math.round((getX()+image.getWidth(parent)/2)/36)*36+ adjustX, Math.round(getY()/36)*36+36 + adjustY, this, 
+							Math.round((getX()+image.getWidth(parent)/2)/36), Math.round(getY()/36)+1));
 					//parent.setTile((bomb.getX()+7)/36, (bomb.getY()+10)/36,new Boulder("boulder.png", bomb.getX()+7, bomb.getY()+10));
 					//System.out.println("X: " + bomb.getTileX() + "  Y: " + bomb.getTileY());
 					//Må justere for å plassere midt på en tile, samtidig som vi må matche med parent.map
@@ -147,8 +156,8 @@ public class Player {
 				if (bombs.size()<maxBombs)
 				{
 		
-					bombs.add(new Bomb("bomb.png", Math.round(getX()/36)*36+36 + adjustX, Math.round(getY()/36)*36+36 + adjustY, this, 
-							Math.round(getX()/36)+1, Math.round(getY()/36)+1));
+					bombs.add(new Bomb("bomb.png", Math.round(getX()/36)*36 + adjustX, Math.round(getY()/36)*36+36 + adjustY, this, 
+							Math.round(getX()/36), Math.round(getY()/36)+1));
 					//parent.setTile((bomb.getX()+7)/36, (bomb.getY()+10)/36,new Boulder("boulder.png", bomb.getX()+7, bomb.getY()+10));
 					//System.out.println("X: " + bomb.getTileX() + "  Y: " + bomb.getTileY());
 					//Må justere for å plassere midt på en tile, samtidig som vi må matche med parent.map
@@ -166,21 +175,33 @@ public class Player {
 	{
 		return bombs;
 	}
-	public void decreaseHealth(int hp)
+	public void decreaseHealth()
 	{
-		this.hp-=hp;
+		if(invincibility<=0)
+		{
+			this.hp--;
+			Board.get_ui().getElements().get(id).getStrings().get(0).updateString("X  "+ Integer.toString(hp));
+			invincibility=invincibilityCoolDownForAASjekkeOmSpillerenEndaKanDoEllerOmHanFortsattIkkeSkalMisteLivNaarHanBlirTruffetAvEnFlamme_DenneCooldownSkalVearePaaRundt100MS;
+		}
 	}
 	public void tick()
 	{
-		if (hp <= 0)
+
+		if(dead)
 		{
-			isDead = true;
+			image=new ImageIcon("rip.png").getImage();
+			return;
 		}
-		System.out.println(hp);
+		if(hp<=0)
+		{
+			image=new ImageIcon("rip.png").getImage();
+			y+=10;
+			dead=true;
+		}
 		for(Bomb b:bomb_removal_queue)
 		{
 			bombs.remove(b);
-		}
+		}//
 		for(Fire set:fire_removal_queue)
 		{
 			fires.remove(set);
@@ -189,37 +210,51 @@ public class Player {
 			fire_removal_queue = new ArrayList<>();
 		if(!bomb_removal_queue.isEmpty())
 			bomb_removal_queue = new ArrayList<>();
+		if(invincibility>0)
+		{
+			invincibility--;
+			if(invincibility%6<=2)
+				image=new ImageIcon("").getImage();
+			else
+				image=trueImage;
+		}
+		else
+		{
+			image=trueImage;
+		}
 		x += velX;
 		y += velY;
-		tileX = Math.round(x/36);
-		tileY = Math.round(y/36) + 1; 
+		lowerTileX = Math.round(x/36);
+		upperTileX=Math.round((x+image.getWidth(parent)/2)/36);
+		lowerTileY = Math.round(y/36) + 1;
+		upperTileY = Math.round((y-image.getHeight(parent)/4)/36)+1;
 		//System.out.println(tileX + "   " + tileY); //printer hele tiden spilleren sin posisjon i "map"
 		
 		// spilleren kan ikke gå utafor kanten (y-retning er litt rar)
-		if (tileX == 0)
+		if (lowerTileX == 0)
 		{
 			x -= velX;
 		}
-		if (tileY == 1)
+		if (upperTileY == 1)
 		{
 			y -= velY;
 		}
-		else if (tileX == 19)
+		else if (upperTileX == 19)
 		{
 			x -= velX;
 		}
-		else if (tileY == 18)
+		else if (lowerTileY == 18)
 		{
 			y -= velY;
 		}
 		
 		//spiller kan ikke gå på "boulder" på brettet 
-		else if (parent.isBoulder(tileX, tileY) || parent.isBoulder(tileX+1, tileY))
+		else if (parent.isBoulder(lowerTileX, lowerTileY) || parent.isBoulder(upperTileX, lowerTileY)||parent.isBoulder(upperTileX, upperTileY) || parent.isBoulder(lowerTileX, upperTileY))
 		{
 			x -= velX;
 			y -= velY;
 		}
-		else if (parent.isBox(tileX, tileY) || parent.isBox(tileX+1, tileY))
+		else if (parent.isBox(lowerTileX, lowerTileY) || parent.isBox(upperTileX, lowerTileY)||parent.isBox(upperTileX, upperTileY) || parent.isBox(lowerTileX, upperTileY))
 		{
 			x -= velX;
 			y -= velY;
@@ -287,9 +322,6 @@ public class Player {
 	{
 		return fires;
 	}
-	public void setDamage(int damage)
-	{
-		hp -= damage;
-	}
+
 	
 }
