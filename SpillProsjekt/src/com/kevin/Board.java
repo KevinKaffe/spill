@@ -61,7 +61,7 @@ public class Board extends JPanel implements ActionListener {
         		}
         		else
         		{
-        			temp.add(new Tile("road.png", i*36, j*36));
+        			temp.add(new Tile("asfalt.jpg", i*36, j*36));
         		}
         	}
         	map.add(temp);
@@ -131,7 +131,10 @@ public class Board extends JPanel implements ActionListener {
 
       	   	 explotionRealTime(g2d, fire, 0,-1, 3, current);
             }
-        	
+        	if (current.getIsDead())
+        	{
+        		players.remove(current);
+        	}
         }
        
   
@@ -217,7 +220,6 @@ public class Board extends JPanel implements ActionListener {
 	   	{
 	    	if (i < fire.getBoundry(index))
 		   	 {
-	    		System.out.println(i);
 		   		if (isBoulder(fire.getTileX()+posOrNegX*i, fire.getTileY() + posOrNegY*i))
 		   		{
 		   			break;
@@ -232,8 +234,15 @@ public class Board extends JPanel implements ActionListener {
 		   		if (isBox(fire.getTileX() + posOrNegX*i, fire.getTileY() + posOrNegY*i))
 		   		{  		
 		   			setTile(fire.getTileX() + posOrNegX*i, fire.getTileY() + posOrNegY*i,
-			   				new Tile("road.png", fire.getX() - player.adjustX+2 + 36*i*posOrNegX,fire.getY() + i*36*posOrNegY - player.adjustY));
+			   				new Tile("afalt.jpg", fire.getX() - player.adjustX+2 + 36*i*posOrNegX,fire.getY() + i*36*posOrNegY - player.adjustY));
 		   			fire.setBoundry(i, index);
+		   		}
+		   		for (Player playerCurrent : players)
+		   		{
+		   			if (fire.getTileX() + posOrNegX*i == playerCurrent.getTileX() && fire.getTileY() + posOrNegY*i == playerCurrent.getTileY())
+		   			{
+		   				playerCurrent.setDamage(1);
+		   			}
 		   		}
 		       	g2d.drawImage(fire.getImage(), fire.getX()+posOrNegX*i*36,fire.getY()+posOrNegY*i*36, this);
 		   	 }

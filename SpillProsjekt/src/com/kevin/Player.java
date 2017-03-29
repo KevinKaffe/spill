@@ -16,6 +16,7 @@ public class Player {
 	private int tileY;
 	private double velX, velY;
 	private double speed;
+	private boolean isDead = false;
 	private PlayerType type;
 	private Board parent;
 	private List<Bomb> bombs = new ArrayList<>();
@@ -40,15 +41,19 @@ public class Player {
 		if (type == PlayerType.Player1)
 		{
 			ii = new ImageIcon("player.png");
+			x = 2*36;
+			y = 2*36;
 		}
 		else{
-			ii = new ImageIcon("craft.png");
+			ii = new ImageIcon("player.png");
+			x = 16*36;
+			y = 16*36;
 		}
 		
 		image = ii.getImage();
-		x = 2*36;
-		hp = 100;
-		y = 2*36;
+		
+		hp = 200*3;
+		
 		velX = 0;
 		velY = 0;
 		speed = 5.0;
@@ -56,6 +61,10 @@ public class Player {
 		tileY = Math.round(y/36) + 1;
 	}
 
+	public boolean getIsDead()
+	{
+		return isDead;
+	}
 	public int getFireLevel()
 	{
 		return fireLevel;
@@ -101,7 +110,7 @@ public class Player {
 			{
 				velY = speed;
 			}
-			else if (key == KeyEvent.VK_SHIFT)
+			else if (key == KeyEvent.VK_Z)
 			{
 				if (bombs.size()<maxBombs)
 				{
@@ -163,6 +172,11 @@ public class Player {
 	}
 	public void tick()
 	{
+		if (hp <= 0)
+		{
+			isDead = true;
+		}
+		System.out.println(hp);
 		for(Bomb b:bomb_removal_queue)
 		{
 			bombs.remove(b);
@@ -267,11 +281,15 @@ public class Player {
 	
 	public void destroyFire(Fire set)
 	{
-		fire_removal_queue.add(set);
+		fire_removal_queue.add(set);		
 	}
 	public List<Fire> getFires()
 	{
 		return fires;
+	}
+	public void setDamage(int damage)
+	{
+		hp -= damage;
 	}
 	
 }
