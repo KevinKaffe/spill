@@ -184,8 +184,16 @@ public class Player {
 		if(hp<=0)
 		{
 			image=new ImageIcon("rip.png").getImage();
-			y+=10;
+			y+=20;
 			dead=true;
+			for(Fire fire :fires)
+			{
+				fires.remove(fire);
+			}
+			for(Bomb bomb:bombs)
+			{
+				bombs.remove(bomb);
+			}
 		}
 		for(Bomb b:bomb_removal_queue)
 		{
@@ -214,9 +222,9 @@ public class Player {
 		x += velX;
 		y += velY;
 		lowerTileX = Math.round(x/36);
-		upperTileX=Math.round((x+image.getWidth(parent)/2)/36);
+		upperTileX=Math.round((x+trueImage.getWidth(parent)/2)/36);
 		lowerTileY = Math.round(y/36) + 1;
-		upperTileY = Math.round((y-image.getHeight(parent)/4)/36)+1;
+		upperTileY = Math.round((y-trueImage.getHeight(parent)/4)/36)+1;
 		//System.out.println(tileX + "   " + tileY); //printer hele tiden spilleren sin posisjon i "map"
 		
 		// spilleren kan ikke gå utafor kanten (y-retning er litt rar)
