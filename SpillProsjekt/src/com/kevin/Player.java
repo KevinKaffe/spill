@@ -48,16 +48,16 @@ public class Player {
 		}
 		
 		image = ii.getImage();
-		x = 2*36;
+		x = 4*36;
 		hp = 100;
-		y = 2*36;
+		y = 4*36;
 		velX = 0;
 		velY = 0;
-		speed = 5.0;
+		speed = 4.0;
 		lowerTileX = Math.round(x/36);
-		upperTileX=Math.round((x+image.getWidth(parent))/36);
+		upperTileX=Math.round((x+image.getWidth(parent)/2)/36);
 		lowerTileY = Math.round(y/36) + 1;
-		upperTileY = Math.round((y-image.getHeight(parent))/36);
+		upperTileY = Math.round((y-image.getHeight(parent)/4)/36)+1;
 	}
 
 	public int getFireLevel()
@@ -74,11 +74,11 @@ public class Player {
 	}
 	public int getTileX()
 	{
-		return tileX;
+		return lowerTileX;
 	}
 	public int getTileY()
 	{
-		return tileY;
+		return lowerTileY;
 	}
 	public Image getImage()
 	{
@@ -110,8 +110,8 @@ public class Player {
 				if (bombs.size()<maxBombs)
 				{
 		
-					bombs.add(new Bomb("bomb.png", Math.round(getX()/36)*36+36 + adjustX, Math.round(getY()/36)*36+36 + adjustY, this, 
-							Math.round(getX()/36)+1, Math.round(getY()/36)+1));
+					bombs.add(new Bomb("bomb.png", Math.round((getX()+image.getWidth(parent)/2)/36)*36+ adjustX, Math.round(getY()/36)*36+36 + adjustY, this, 
+							Math.round((getX()+image.getWidth(parent)/2)/36), Math.round(getY()/36)+1));
 					//parent.setTile((bomb.getX()+7)/36, (bomb.getY()+10)/36,new Boulder("boulder.png", bomb.getX()+7, bomb.getY()+10));
 					//System.out.println("X: " + bomb.getTileX() + "  Y: " + bomb.getTileY());
 					//Må justere for å plassere midt på en tile, samtidig som vi må matche med parent.map
@@ -142,8 +142,8 @@ public class Player {
 				if (bombs.size()<maxBombs)
 				{
 		
-					bombs.add(new Bomb("bomb.png", Math.round(getX()/36)*36+36 + adjustX, Math.round(getY()/36)*36+36 + adjustY, this, 
-							Math.round(getX()/36)+1, Math.round(getY()/36)+1));
+					bombs.add(new Bomb("bomb.png", Math.round(getX()/36)*36 + adjustX, Math.round(getY()/36)*36+36 + adjustY, this, 
+							Math.round(getX()/36), Math.round(getY()/36)+1));
 					//parent.setTile((bomb.getX()+7)/36, (bomb.getY()+10)/36,new Boulder("boulder.png", bomb.getX()+7, bomb.getY()+10));
 					//System.out.println("X: " + bomb.getTileX() + "  Y: " + bomb.getTileY());
 					//Må justere for å plassere midt på en tile, samtidig som vi må matche med parent.map
@@ -181,24 +181,26 @@ public class Player {
 			bomb_removal_queue = new ArrayList<>();
 		x += velX;
 		y += velY;
-		tileX = Math.round(x/36);
-		tileY = Math.round(y/36)+1; 
+		lowerTileX = Math.round(x/36);
+		upperTileX=Math.round((x+image.getWidth(parent)/2)/36);
+		lowerTileY = Math.round(y/36) + 1;
+		upperTileY = Math.round((y-image.getHeight(parent)/4)/36)+1;
 		//System.out.println(tileX + "   " + tileY); //printer hele tiden spilleren sin posisjon i "map"
 		
 		// spilleren kan ikke gå utafor kanten (y-retning er litt rar)
-		if (tileX == 0)
+		if (lowerTileX == 0)
 		{
 			x -= velX;
 		}
-		if (tileY == 1)
+		if (upperTileY == 1)
 		{
 			y -= velY;
 		}
-		else if (tileX == 19)
+		else if (upperTileX == 19)
 		{
 			x -= velX;
 		}
-		else if (tileY == 18)
+		else if (lowerTileY == 18)
 		{
 			y -= velY;
 		}
@@ -209,7 +211,7 @@ public class Player {
 			x -= velX;
 			y -= velY;
 		}
-		else if (parent.isBox(tileX, tileY) || parent.isBox(tileX+1, tileY))
+		else if (parent.isBox(lowerTileX, lowerTileY) || parent.isBox(upperTileX, lowerTileY)||parent.isBox(upperTileX, upperTileY) || parent.isBox(lowerTileX, upperTileY))
 		{
 			x -= velX;
 			y -= velY;
