@@ -12,6 +12,7 @@ public class Player {
 	private int fireLevel;
 	private boolean[] keysDown ={false,false,false,false};//For � ikke f� delay n�r man f�rst g�r en vei s� snur
 	private int x, y,hp,maxBombs,id,invincibility;
+	private boolean dead;
 	private int lowerTileX; // spillers posisjon på "map"
 	private int lowerTileY;
 	private int upperTileX;
@@ -35,6 +36,7 @@ public class Player {
 	private Image image,trueImage;
 	public Player(Board board, PlayerType type, int id)
 	{
+		dead =false;
 		this.id=id;
 		maxBombs=3;
 		this.type=type;
@@ -168,12 +170,23 @@ public class Player {
 		if(invincibility<=0)
 		{
 			this.hp--;
-			Board.get_ui().getElements().get(0).getStrings().get(0).updateString("X  "+ Integer.toString(hp));
+			Board.get_ui().getElements().get(id).getStrings().get(0).updateString("X  "+ Integer.toString(hp));
 			invincibility=invincibilityCoolDownForAASjekkeOmSpillerenEndaKanDoEllerOmHanFortsattIkkeSkalMisteLivNaarHanBlirTruffetAvEnFlamme_DenneCooldownSkalVearePaaRundt100MS;
 		}
 	}
 	public void tick()
 	{
+		if(dead)
+		{
+			image=new ImageIcon("rip.png").getImage();
+			return;
+		}
+		if(hp<=0)
+		{
+			image=new ImageIcon("rip.png").getImage();
+			y+=10;
+			dead=true;
+		}
 		for(Bomb b:bomb_removal_queue)
 		{
 			bombs.remove(b);

@@ -90,7 +90,7 @@ public class Board extends JPanel implements ActionListener {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        g.setFont(new Font("Century", Font.BOLD, 16));
+        g.setFont(new Font("Century", Font.BOLD, 14));
         doDrawing(g);
 
         Toolkit.getDefaultToolkit().sync();

@@ -19,9 +19,11 @@ public class UserInterface {
 		elements.add(new Element(x+25, y+100));
 		elements.get(0).addImage("faceOne.png", 0, 0);
 		elements.get(0).addImage("heart.png", 10, 8);
-		elements.get(0).addString("X " + Integer.toString(3), 40, 25);
+		elements.get(0).addString("X " + Integer.toString(3), 30, 21);
 		elements.add(new Element(x+25, y+225));
 		elements.get(1).addImage("faceOne.png", 0, 0);
+		elements.get(1).addImage("heart.png", 10, 8);
+		elements.get(1).addString("X " + Integer.toString(3), 30, 21);
 		elements.add(new Element(x+25, y+350));
 		elements.get(2).addImage("faceOne.png", 0, 0);
 		elements.add(new Element(x+25, y+475));
