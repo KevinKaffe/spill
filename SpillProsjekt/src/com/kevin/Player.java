@@ -190,7 +190,7 @@ public class Player {
 		for(Bomb b:bomb_removal_queue)
 		{
 			bombs.remove(b);
-		}
+		}//
 		for(Fire set:fire_removal_queue)
 		{
 			fires.remove(set);
