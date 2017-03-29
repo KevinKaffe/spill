@@ -11,7 +11,7 @@ import javax.swing.ImageIcon;
 public class Player {
 	private int fireLevel;
 	private boolean[] keysDown ={false,false,false,false};//For � ikke f� delay n�r man f�rst g�r en vei s� snur
-	private int x, y,hp,maxBombs;
+	private int x, y,hp,maxBombs,id,invincibility;
 	private int lowerTileX; // spillers posisjon på "map"
 	private int lowerTileY;
 	private int upperTileX;
@@ -30,10 +30,12 @@ public class Player {
 	private Collection<Fire> fire_removal_queue = new ArrayList<>();
 	public static final int adjustX = -7;   // måte justere for å at det skulle se pent ut 
 	public static final int adjustY = -10;
+	private final int invincibilityCoolDownForAASjekkeOmSpillerenEndaKanDoEllerOmHanFortsattIkkeSkalMisteLivNaarHanBlirTruffetAvEnFlamme_DenneCooldownSkalVearePaaRundt100MS=110;
 	
-	private Image image;
-	public Player(Board board, PlayerType type)
+	private Image image,trueImage;
+	public Player(Board board, PlayerType type, int id)
 	{
+		this.id=id;
 		maxBombs=3;
 		this.type=type;
 		fireLevel = 5;
@@ -46,10 +48,10 @@ public class Player {
 		else{
 			ii = new ImageIcon("craft.png");
 		}
-		
+		trueImage=ii.getImage();
 		image = ii.getImage();
 		x = 4*36;
-		hp = 100;
+		hp = 3;
 		y = 4*36;
 		velX = 0;
 		velY = 0;
@@ -161,9 +163,14 @@ public class Player {
 	{
 		return bombs;
 	}
-	public void decreaseHealth(int hp)
+	public void decreaseHealth()
 	{
-		this.hp-=hp;
+		if(invincibility<=0)
+		{
+			this.hp--;
+			Board.get_ui().getElements().get(0).getStrings().get(0).updateString("X  "+ Integer.toString(hp));
+			invincibility=invincibilityCoolDownForAASjekkeOmSpillerenEndaKanDoEllerOmHanFortsattIkkeSkalMisteLivNaarHanBlirTruffetAvEnFlamme_DenneCooldownSkalVearePaaRundt100MS;
+		}
 	}
 	public void tick()
 	{
@@ -179,6 +186,18 @@ public class Player {
 			fire_removal_queue = new ArrayList<>();
 		if(!bomb_removal_queue.isEmpty())
 			bomb_removal_queue = new ArrayList<>();
+		if(invincibility>0)
+		{
+			invincibility--;
+			if(invincibility%6<=2)
+				image=new ImageIcon("").getImage();
+			else
+				image=trueImage;
+		}
+		else
+		{
+			image=trueImage;
+		}
 		x += velX;
 		y += velY;
 		lowerTileX = Math.round(x/36);
@@ -208,6 +227,7 @@ public class Player {
 		//spiller kan ikke gå på "boulder" på brettet 
 		else if (parent.isBoulder(lowerTileX, lowerTileY) || parent.isBoulder(upperTileX, lowerTileY)||parent.isBoulder(upperTileX, upperTileY) || parent.isBoulder(lowerTileX, upperTileY))
 		{
+			this.decreaseHealth();
 			x -= velX;
 			y -= velY;
 		}
