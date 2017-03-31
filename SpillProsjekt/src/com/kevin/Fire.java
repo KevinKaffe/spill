@@ -27,6 +27,10 @@ public class Fire extends Tile {
 	
 	private void destroy()
 	{
+		if (player.getIsDead())
+		{
+			player.destroyFire(this);
+		}
 		if (delay <= 0)
 		{
 			delay = waitDestruction;

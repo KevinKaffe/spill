@@ -35,7 +35,7 @@ public class Bomb extends Tile {
 		{
 			global_bomb_list.remove(this);
 			delay = waitDestruction;
-			player.explotion(getX(), getY());
+			player.explotion(getX(), getY(), getTileX(), getTileY());
 			player.destroyBomb(this);
 		}
 	}

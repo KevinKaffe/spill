@@ -70,6 +70,11 @@ public class Player {
 		upperTileY = Math.round((y-image.getHeight(parent)/4)/36)+1;
 	}
 
+	public void setImage(ImageIcon ii)
+	{
+		image = ii.getImage();
+		trueImage = ii.getImage();
+	}
 	public boolean getIsDead()
 	{
 		return isDead;
@@ -94,13 +99,26 @@ public class Player {
 	{
 		return lowerTileY;
 	}
+	public int getUpperTileX()
+	{
+		return upperTileX;
+	}
+	public int getUpperTileY()
+	{
+		return upperTileY;
+	}
 	public Image getImage()
 	{
 		return image;
 	}
 	public void keyPressed(KeyEvent e)
 	{
+		if (dead)
+		{
+			return;
+		}
 		int key = e.getKeyCode();
+		
 		if(type==PlayerType.Player1)
 		{
 			if(key == KeyEvent.VK_LEFT)
@@ -125,7 +143,7 @@ public class Player {
 				{
 		
 					bombs.add(new Bomb("bomb.png", Math.round((getX()+image.getWidth(parent)/2)/36)*36+ adjustX, Math.round(getY()/36)*36+36 + adjustY, this, 
-							Math.round((getX()+image.getWidth(parent)/2)/36), Math.round(getY()/36)+1));
+							getTileX(), getTileY()));
 					//parent.setTile((bomb.getX()+7)/36, (bomb.getY()+10)/36,new Boulder("boulder.png", bomb.getX()+7, bomb.getY()+10));
 					//System.out.println("X: " + bomb.getTileX() + "  Y: " + bomb.getTileY());
 					//Må justere for å plassere midt på en tile, samtidig som vi må matche med parent.map
@@ -189,22 +207,21 @@ public class Player {
 
 		if(dead)
 		{
-			image=new ImageIcon("rip.png").getImage();
+			for(Bomb b:bomb_removal_queue)
+			{
+				bombs.remove(b);
+			}//
+			for(Fire set:fire_removal_queue)
+			{
+				fires.remove(set);
+			}
 			return;
 		}
 		if(hp<=0)
 		{
-			image=new ImageIcon("rip.png").getImage();
-			y+=20;
+			parent.setTile(lowerTileX, lowerTileY, new Boulder ("rip.png", lowerTileX*36, lowerTileY*36));
 			dead=true;
-			for(Fire fire :fires)
-			{
-				fires.remove(fire);
-			}
-			for(Bomb bomb:bombs)
-			{
-				bombs.remove(bomb);
-			}
+		
 		}
 		for(Bomb b:bomb_removal_queue)
 		{
@@ -236,28 +253,15 @@ public class Player {
 		upperTileX=Math.round((x+trueImage.getWidth(parent)/2)/36);
 		lowerTileY = Math.round(y/36) + 1;
 		upperTileY = Math.round((y-trueImage.getHeight(parent)/4)/36)+1;
-		//System.out.println(tileX + "   " + tileY); //printer hele tiden spilleren sin posisjon i "map"
 		
-		// spilleren kan ikke gå utafor kanten (y-retning er litt rar)
-		if (lowerTileX == 0)
-		{
-			x -= velX;
-		}
-		if (upperTileY == 1)
+
+		
+		if (y <= 15)
 		{
 			y -= velY;
 		}
-		else if (upperTileX == 19)
-		{
-			x -= velX;
-		}
-		else if (lowerTileY == 18)
-		{
-			y -= velY;
-		}
-		
 		//spiller kan ikke gå på "boulder" på brettet 
-		else if (parent.isBoulder(lowerTileX, lowerTileY) || parent.isBoulder(upperTileX, lowerTileY)||parent.isBoulder(upperTileX, upperTileY) || parent.isBoulder(lowerTileX, upperTileY))
+		if (parent.isBoulder(lowerTileX, lowerTileY) || parent.isBoulder(upperTileX, lowerTileY)||parent.isBoulder(upperTileX, upperTileY) || parent.isBoulder(lowerTileX, upperTileY))
 		{
 			x -= velX;
 			y -= velY;
@@ -315,10 +319,10 @@ public class Player {
 	}
 	
 	//lager flammer i hver retning
-	public void explotion(int x, int y)
+	public void explotion(int x, int y, int tileX, int tileY)
 	{
 		// både bomber og flammer har en posisjon på "map"  og en faktisk posisjon på lærettet 
-		Fire f = new Fire ("fire.png", x-2,y, this, (x+7)/36, (y+10)/36); 
+		Fire f = new Fire ("fire.png", x-2,y, this, tileX, tileY); 
 		fires.add(f);
 	}
 	

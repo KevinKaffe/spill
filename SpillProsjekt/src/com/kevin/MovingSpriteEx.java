@@ -5,6 +5,7 @@ import javax.swing.JFrame;
 
 public class MovingSpriteEx extends JFrame {
 
+
     public MovingSpriteEx() {
         
         initUI();
@@ -12,9 +13,10 @@ public class MovingSpriteEx extends JFrame {
     
     private void initUI() {
         
+    	
         add(new Board());
         
-        setSize(840, 720);
+        setSize(840-36, 720);
         setResizable(false);
         
         setTitle("Moving sprite");

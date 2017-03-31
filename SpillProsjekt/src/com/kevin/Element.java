@@ -24,6 +24,7 @@ public class Element {
 		ImageIcon ii = new ImageIcon(imgSrc);
 		icons.add(new Triplette(ii.getImage(),x+this.x,y+this.y));
 	}
+
 	public List<Triplette> getIcons()
 	{
 		return icons;

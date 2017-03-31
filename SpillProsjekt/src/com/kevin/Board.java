@@ -13,42 +13,52 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
 
 public class Board extends JPanel implements ActionListener {
 
-    private Timer timer;
+	private Timer timer;
     private final int DELAY = 1000/60;
     private List<Player> players = new ArrayList<>();
     private List<List<Tile>> map = new ArrayList<>();
     private Background bg;
     private static UserInterface UI;
-
+    private Menu menu;
+    private boolean inital = false;
+    
+    
+    private State state = State.MENU;
+    
     public Board() 
     {
+    	
+    	menu = new Menu(this);
+    	this.addMouseListener(new Mouse(this, menu));
 
+  	    players.add(new Player(this, PlayerType.Player1,0));
+  	    players.add(new Player(this, PlayerType.Player2,1));
+ 
         addKeyListener(new TAdapter());
         setFocusable(true);
         setBackground(Color.BLACK);
-
-        players.add(new Player(this, PlayerType.Player1,0));
-        players.add(new Player(this, PlayerType.Player2,1));
         timer = new Timer(DELAY, this);
         timer.start();
         bg = new Background("background.png");
-        UI = new UserInterface(720,0);
+        UI = new UserInterface(720-36,0);
         for(int i =0; i <20; i++)
         {
         	ArrayList<Tile> temp=new ArrayList<>();
-        	for(int j =0; j < 20; j++)
+        	for(int j =0; j < 19; j++)
         	{
         		if (i == 0)
         		{
         			temp.add(new Boulder("boulder.png", i*36, j*36));
         		}
-        		else if (i == 19)
+        		else if (i == 18)
         		{
         			temp.add(new Boulder("boulder.png", i*36, j*36));
         		}
@@ -56,7 +66,7 @@ public class Board extends JPanel implements ActionListener {
         		{
         			temp.add(new Boulder("boulder.png", i*36, j*36));
         		}
-        		else if (j == 19)
+        		else if (j == 18)
         		{
         			temp.add(new Boulder("boulder.png", i*36, j*36));
         		}
@@ -68,9 +78,9 @@ public class Board extends JPanel implements ActionListener {
         	map.add(temp);
         }
         
-        for (int i = 3; i < 20; i += 3)
+        for (int i = 3; i < 16; i += 3)
         {
-        	for (int j = 3; j < 20; j += 3)
+        	for (int j = 3; j < 16; j += 3)
         	{
         		setTile(i,j,new Boulder("boulder.png", i*36, j*36));
         	}
@@ -80,7 +90,7 @@ public class Board extends JPanel implements ActionListener {
         setTile(11,11, new Box ("box.png", 11*36, 11*36));
         setTile(11,10, new Box ("box.png", 11*36, 10*36));
         setTile(10,11, new Box ("box.png", 10*36, 11*36));
-    }
+    	}
 
     public void setTile(int x, int y, Tile t)
     {
@@ -91,70 +101,84 @@ public class Board extends JPanel implements ActionListener {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         g.setFont(new Font("Century", Font.BOLD, 14));
+
         doDrawing(g);
 
         Toolkit.getDefaultToolkit().sync();
     }
 
+    public void setState(State state)
+    {
+    	this.state = state;
+    }
     private void doDrawing(Graphics g) {
-        
-        Graphics2D g2d = (Graphics2D) g;
-        g2d.drawImage(bg.getImage(), 0, 0, this);
-
-        for(List<Tile> line:map)
-        {
-        	for(Tile tile:line)
-        	{
-            	g2d.drawImage(tile.getImage(), tile.getX(), tile.getY(), this);
-        	}
-        }
-        for (Player current : players)
-        {
-        	 g2d.drawImage(current.getImage(), current.getX(), current.getY(), this);
-        }
-       
-        
-        //---------- BOMBS'N EXPLOTIONS -----------------------
-        for (Player current : players)
-        {
-            for(Bomb bomb:current.getBombs())
-            {
-            	g2d.drawImage(bomb.getImage(),bomb.getX(), bomb.getY(), this);
-            }
-            for(Fire fire: current.getFires())
-            {
-
-       	   	 explotionRealTime(g2d, fire, 1,0, 0, current);
-
-      	   	 explotionRealTime(g2d, fire, -1,0, 1, current);
-
-      	   	 explotionRealTime(g2d, fire, 0,1, 2, current);
-
-      	   	 explotionRealTime(g2d, fire, 0,-1, 3, current);
-            }
-        	if (current.getIsDead())
-        	{
-        		players.remove(current);
-        	}
-        }
-       
-  
-//        }
-
-
-	   //-----------------------------------------
-	   	g2d.drawImage(UI.getImage(),UI.getX(), UI.getY(), this);
-	   	for(Element elem:UI.getElements())
-	   	{
-	   		for(Triplette icon:elem.getIcons())
-	   		{
-	   			g2d.drawImage(icon.getImg(),icon.getVal1(), icon.getVal2(), this);
-	   		}
-	   		for(Triplette strings:elem.getStrings())
-	   		{
-	   			g2d.drawString(strings.getString(), strings.getVal1(), strings.getVal2());
-	   		}
-	   	}
+    	
+    	Graphics2D g2d = (Graphics2D) g;
+    	
+    	if (state == State.MENU)
+    	{
+    		menu.setGraphics(g);
+    		menu.draw();
+    	}
+    	
+    	else
+    	{
+    		
+	        g2d.drawImage(bg.getImage(), 0, 0, this);
+	
+	        for(List<Tile> line:map)
+	        {
+	        	for(Tile tile:line)
+	        	{
+	            	g2d.drawImage(tile.getImage(), tile.getX(), tile.getY(), this);
+	        	}
+	        }
+	        for (Player current : players)
+	        {
+	        	 g2d.drawImage(current.getImage(), current.getX(), current.getY(), this);
+	        }
+	       
+	        
+	        //---------- BOMBS'N EXPLOTIONS -----------------------
+	        for (Player current : players)
+	        {
+	            for(Bomb bomb:current.getBombs())
+	            {
+	            	g2d.drawImage(bomb.getImage(),bomb.getX(), bomb.getY(), this);
+	            }
+	            for(Fire fire: current.getFires())
+	            {
+	
+	       	   	 explotionRealTime(g2d, fire, 1,0, 0, current);
+	
+	      	   	 explotionRealTime(g2d, fire, -1,0, 1, current);
+	
+	      	   	 explotionRealTime(g2d, fire, 0,1, 2, current);
+	
+	      	   	 explotionRealTime(g2d, fire, 0,-1, 3, current);
+	            }
+	        	if (current.getIsDead())
+	        	{
+	        		players.remove(current);
+	        	}
+	        }
+	       
+	
+	
+		   //-----------------------------------------
+		   	g2d.drawImage(UI.getImage(),UI.getX(), UI.getY(), this);
+		   	for(Element elem:UI.getElements())
+		   	{
+		   		for(Triplette icon:elem.getIcons())
+		   		{
+		   			g2d.drawImage(icon.getImg(),icon.getVal1(), icon.getVal2(), this);
+		   		}
+		   		for(Triplette strings:elem.getStrings())
+		   		{
+		   			g2d.drawString(strings.getString(), strings.getVal1(), strings.getVal2());
+		   		}
+		   	}
+       }
    }
 
 
@@ -171,30 +195,34 @@ public class Board extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
        
-        for(List<Tile> line:map)
-        {
-        	for(Tile tile:line)
-        	{
-            	tile.tick();
-        	}
-        }
+    	if (state == State.GAME)
+    	{
+    		for(List<Tile> line:map)
+            {
+            	for(Tile tile:line)
+            	{
+                	tile.tick();
+            	}
+            }
+            
+            for (Player player : players)
+            {
+                for(Bomb bomb:player.getBombs())
+                {
+                	bomb.tick();
+                }
+                for(Fire fire:player.getFires())
+                {
+                	fire.tick();
+                }
+                player.tick();
+            }
         
-        for (Player player : players)
-        {
-            for(Bomb bomb:player.getBombs())
-            {
-            	bomb.tick();
-            }
-            for(Fire fire:player.getFires())
-            {
-            	fire.tick();
-            }
-            player.tick();
-        }
-    
-        repaint();  
+            repaint();  
+    	}
+        
     }
-
+    
     private class TAdapter extends KeyAdapter {
 
         @Override
@@ -238,12 +266,15 @@ public class Board extends JPanel implements ActionListener {
 		   		if (isBox(fire.getTileX() + posOrNegX*i, fire.getTileY() + posOrNegY*i))
 		   		{  		
 		   			setTile(fire.getTileX() + posOrNegX*i, fire.getTileY() + posOrNegY*i,
-			   				new Tile("afalt.jpg", fire.getX() - player.adjustX+2 + 36*i*posOrNegX,fire.getY() + i*36*posOrNegY - player.adjustY));
+			   				new Tile("asfalt.jpg", fire.getX() - player.adjustX+2 + 36*i*posOrNegX,fire.getY() + i*36*posOrNegY - player.adjustY));
 		   			fire.setBoundry(i, index);
 		   		}
 		   		for (Player playerCurrent : players)
 		   		{
-		   			if (fire.getTileX() + posOrNegX*i == playerCurrent.getTileX() && fire.getTileY() + posOrNegY*i == playerCurrent.getTileY())
+		   			if ((fire.getTileX() + posOrNegX*i == playerCurrent.getTileX() && fire.getTileY() + posOrNegY*i == playerCurrent.getTileY()) || 
+		   					(fire.getTileX() + posOrNegX*i == playerCurrent.getUpperTileX() && fire.getTileY() + posOrNegY*i == playerCurrent.getTileY())
+		   					|| (fire.getTileX() + posOrNegX*i == playerCurrent.getTileX() && fire.getTileY() + posOrNegY*i == playerCurrent.getUpperTileY())
+		   					|| (fire.getTileX() + posOrNegX*i == playerCurrent.getUpperTileX() && fire.getTileY() + posOrNegY*i == playerCurrent.getUpperTileY()))
 		   			{
 		   				playerCurrent.decreaseHealth();
 		   			}
@@ -257,5 +288,52 @@ public class Board extends JPanel implements ActionListener {
 	    	}
 	   	}
     }
+    
+    public void ready()
+    {
+    	if (!menu.isTwoPlayer())
+    	{
+    		players.remove(1);
+    		if (menu.isTrump())
+        	{
+    			System.out.println("Hello");
+        		players.get(0).setImage(new ImageIcon("trumpHead.png"));
+        	}
+    		else
+    		{
+    			players.get(0).setImage(new ImageIcon("hillaryHead.png"));
+    		}
+    	}
+    	else
+    	{
+    		if (menu.isTrump())
+        	{
+        		players.get(0).setImage(new ImageIcon("trumpHead.png"));
+        		players.get(1).setImage(new ImageIcon("hillaryHead.png"));
+        	}
+    		else
+    		{
+    			players.get(1).setImage(new ImageIcon("trumpHead.png"));
+        		players.get(0).setImage(new ImageIcon("hillaryHead.png"));
+    		}
+    	}
+    	  		
+    	state = State.GAME;
+    }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
