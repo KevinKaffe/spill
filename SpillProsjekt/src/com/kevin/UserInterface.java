@@ -18,8 +18,13 @@ public class UserInterface {
 		background = ii.getImage();
 		elements.add(new Element(x+25, y+100));
 		elements.get(0).addImage("faceOne.png", 0, 0);
-		elements.get(0).addImage("heart.png", 10, 8);
-		elements.get(0).addString("X " + Integer.toString(3), 30, 21);
+		elements.get(0).addImage("heart.png", 10, 28);
+		elements.get(0).addImage("superpower_bar_fill.png", 5, 48);
+		elements.get(0).addImage("superpower_bar.png", 5, 48);
+		elements.get(0).addString(": " + Integer.toString(3), 30, 41);
+		/*elements.get(0).addImage("Icons/speed.png", 10, 24);
+		elements.get(0).addString(": " + Integer.toString(3), 30, 37);*/
+		elements.get(0).addString("Player 1", 10, 20);
 		elements.add(new Element(x+25, y+225));
 		elements.get(1).addImage("faceOne.png", 0, 0);
 		elements.get(1).addImage("heart.png", 10, 8);

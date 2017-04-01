@@ -19,7 +19,7 @@ public class MovingSpriteEx extends JFrame {
         setSize(840-36, 720);
         setResizable(false);
         
-        setTitle("Moving sprite");
+        setTitle("Bomb A Wall!");
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }

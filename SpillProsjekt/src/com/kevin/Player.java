@@ -28,11 +28,17 @@ public class Player {
 	private Collection<Fire> fire_removal_queue = new ArrayList<>();
 	public static final int adjustX = -7;   // måte justere for å at det skulle se pent ut 
 	public static final int adjustY = -10;
+	private String[] sprites;
+	private int localTicker;
+	private int walkState; //For � vite hvilken side man skal se han fra
+	private int spriteState; //For animasjoner
 	private final int invincibilityCoolDownForAASjekkeOmSpillerenEndaKanDoEllerOmHanFortsattIkkeSkalMisteLivNaarHanBlirTruffetAvEnFlamme_DenneCooldownSkalVearePaaRundt100MS=110;
-	
+	private final int spriteWidth=18; //Halve vidden, vel � merke
 	private Image image,trueImage;
+	private double superPower;
 	public Player(Board board, PlayerType type, int id)
 	{
+		superPower=100;
 		dead =false;
 		this.id=id;
 		maxBombs=3;
@@ -56,8 +62,9 @@ public class Player {
 
 		
 		hp = 200*3;
-		
-
+		spriteState=0;
+		walkState=0;
+		localTicker=0;
 		x = 4*36;
 		hp = 3;
 		y = 4*36;
@@ -65,7 +72,7 @@ public class Player {
 		velY = 0;
 		speed = 4.0;
 		lowerTileX = Math.round(x/36);
-		upperTileX=Math.round((x+image.getWidth(parent)/2)/36);
+		upperTileX=Math.round((x+spriteWidth)/36);
 		lowerTileY = Math.round(y/36) + 1;
 		upperTileY = Math.round((y-image.getHeight(parent)/4)/36)+1;
 	}
@@ -123,18 +130,26 @@ public class Player {
 		{
 			if(key == KeyEvent.VK_LEFT)
 			{
+				walkState=1;
+				keysDown[1]=true;
 				velX = -speed;
 			}
 			else if(key==KeyEvent.VK_RIGHT)
 			{
+				walkState=2;
+				keysDown[2]=true;
 				velX = speed;
 			}
 			else if(key==KeyEvent.VK_UP)
 			{
+				walkState=3;
+				keysDown[3]=true;
 				velY = -speed;
 			}
 			else if(key==KeyEvent.VK_DOWN)
 			{
+				walkState=0;
+				keysDown[0]=true;
 				velY = speed;
 			}
 			else if (key == KeyEvent.VK_Z)
@@ -142,12 +157,16 @@ public class Player {
 				if (bombs.size()<maxBombs)
 				{
 		
-					bombs.add(new Bomb("bomb.png", Math.round((getX()+image.getWidth(parent)/2)/36)*36+ adjustX, Math.round(getY()/36)*36+36 + adjustY, this, 
+					bombs.add(new Bomb("bomb.png", Math.round((getX()+spriteWidth)/36)*36+ adjustX, Math.round(getY()/36)*36+36 + adjustY, this, 
 							getTileX(), getTileY()));
 					//parent.setTile((bomb.getX()+7)/36, (bomb.getY()+10)/36,new Boulder("boulder.png", bomb.getX()+7, bomb.getY()+10));
 					//System.out.println("X: " + bomb.getTileX() + "  Y: " + bomb.getTileY());
 					//Må justere for å plassere midt på en tile, samtidig som vi må matche med parent.map
 				}
+			}
+			else if(key==KeyEvent.VK_ENTER)
+			{
+				//if()
 			}
 			
 		}
@@ -155,18 +174,26 @@ public class Player {
 		{
 			if(key == KeyEvent.VK_A)
 			{
+				walkState=1;
+				keysDown[1]=true;
 				velX = -speed;
 			}
 			else if(key==KeyEvent.VK_D)
 			{
+				walkState=2;
+				keysDown[2]=true;
 				velX = speed;
 			}
 			else if(key==KeyEvent.VK_W)
 			{
+				walkState=3;
+				keysDown[3]=true;
 				velY = -speed;
 			}
 			else if(key==KeyEvent.VK_S)
 			{
+				walkState=0;
+				keysDown[0]=true;
 				velY = speed;
 			}
 			else if (key == KeyEvent.VK_T)
@@ -183,7 +210,10 @@ public class Player {
 			}
 		}
 	}
-
+	public void setSprites(String[] sprites)
+	{
+		this.sprites = sprites;
+	}
 	public void destroyBomb(Bomb bomb)
 	{
 		bomb_removal_queue.add(bomb);
@@ -204,7 +234,7 @@ public class Player {
 	}
 	public void tick()
 	{
-
+		localTicker++;
 		if(dead)
 		{
 			for(Bomb b:bomb_removal_queue)
@@ -235,6 +265,30 @@ public class Player {
 			fire_removal_queue = new ArrayList<>();
 		if(!bomb_removal_queue.isEmpty())
 			bomb_removal_queue = new ArrayList<>();
+		
+		if(keysDown[0] || keysDown[1]||keysDown[2]||keysDown[3])
+		{
+			if(localTicker%6 ==0)
+				spriteState++;
+			if(keysDown[0])
+				walkState=0;
+			else if(keysDown[1])
+				walkState=2;
+			else if(keysDown[2])
+				walkState=1;
+			else if(keysDown[3])
+				walkState=3;
+		}
+		else
+		{
+			spriteState=0;
+		}
+		if(localTicker%500==0 &&superPower+4<100)
+		{
+			superPower+=100/6;
+			Board.get_ui().getElements().get(id).getIcons().get(2).updateWidth(superPower+4);
+		}
+		this.setImage(new ImageIcon(sprites[spriteState%4 + 4*walkState]));
 		if(invincibility>0)
 		{
 			invincibility--;
@@ -247,16 +301,17 @@ public class Player {
 		{
 			image=trueImage;
 		}
+		
 		x += velX;
 		y += velY;
-		lowerTileX = Math.round(x/36);
-		upperTileX=Math.round((x+trueImage.getWidth(parent)/2)/36);
-		lowerTileY = Math.round(y/36) + 1;
-		upperTileY = Math.round((y-trueImage.getHeight(parent)/4)/36)+1;
+		lowerTileX = Math.round(getX()/36);
+		upperTileX=Math.round((getX()+spriteWidth)/36);
+		lowerTileY = Math.round(getY()/36) + 1;
+		upperTileY = Math.round((getY()-trueImage.getHeight(parent)/4)/36)+1;
 		
 
 		
-		if (y <= 15)
+		if (getY() <= 15)
 		{
 			y -= velY;
 		}
@@ -281,38 +336,58 @@ public class Player {
 		{
 			if(key == KeyEvent.VK_LEFT)
 			{
-				velX = 0;
+				velX=speed;
+				if(!keysDown[2])
+					velX = 0;
+				keysDown[1]=false;
 			}
 			else if(key==KeyEvent.VK_RIGHT)
 			{
-				velX = 0;
+				velX=-speed;
+				if(!keysDown[1])
+					velX = 0;
+				keysDown[2]=false;
 			}
 			else if(key==KeyEvent.VK_UP)
 			{
-				velY = 0;
+				velY=speed;
+				if(!keysDown[0])
+					velY = 0;
+				keysDown[3]=false;
 			}
 			else if(key==KeyEvent.VK_DOWN)
 			{
-				velY = 0;
+				velY=-speed;
+				if(!keysDown[3])
+					velY = 0;
+				keysDown[0]=false;
 			}
 		}
 		else if (type == PlayerType.Player2)
 		{
 			if(key == KeyEvent.VK_A)
 			{
-				velX = 0;
+				if(!keysDown[2])
+					velX = 0;
+				keysDown[1]=false;
 			}
 			else if(key==KeyEvent.VK_D)
 			{
-				velX = 0;
+				if(!keysDown[1])
+					velX = 0;
+				keysDown[2]=false;
 			}
 			else if(key==KeyEvent.VK_W)
 			{
-				velY = 0;
+				if(!keysDown[0])
+					velY = 0;
+				keysDown[3]=false;
 			}
 			else if(key==KeyEvent.VK_S)
 			{
-				velY = 0;
+				if(!keysDown[3])
+					velY = 0;
+				keysDown[0]=false;
 			}
 		}
 		

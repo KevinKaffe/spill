@@ -25,6 +25,39 @@ public class Board extends JPanel implements ActionListener {
     private final int DELAY = 1000/60;
     private List<Player> players = new ArrayList<>();
     private List<List<Tile>> map = new ArrayList<>();
+    private static Board staticBoard;
+    private String[] TrumpSprites = {"TrumpSprites/Front/0.png",
+    		"TrumpSprites/Front/1.png",
+    		"TrumpSprites/Front/0.png",
+    		"TrumpSprites/Front/2.png",
+    		"TrumpSprites/Right/0.png",
+    		"TrumpSprites/Right/1.png",
+    		"TrumpSprites/Right/0.png",
+    		"TrumpSprites/Right/2.png",
+    		"TrumpSprites//Left/0.png",
+    		"TrumpSprites//Left/1.png",
+    		"TrumpSprites//Left/0.png",
+    		"TrumpSprites//Left/2.png",
+    		"TrumpSprites/Behind/0.png",
+    		"TrumpSprites/Behind/1.png",
+    		"TrumpSprites/Behind/0.png",
+    		"TrumpSprites/Behind/2.png"};
+    private String[] HillarySprites = {"HillarySprites/Front/0.png",
+    		"HillarySprites/Front/1.png",
+    		"HillarySprites/Front/0.png",
+    		"HillarySprites/Front/2.png",
+    		"HillarySprites/Right/0.png",
+    		"HillarySprites/Right/1.png",
+    		"HillarySprites/Right/0.png",
+    		"HillarySprites/Right/2.png",
+    		"HillarySprites//Left/0.png",
+    		"HillarySprites//Left/1.png",
+    		"HillarySprites//Left/0.png",
+    		"HillarySprites//Left/2.png",
+    		"HillarySprites/Behind/0.png",
+    		"HillarySprites/Behind/1.png",
+    		"HillarySprites/Behind/0.png",
+    		"HillarySprites/Behind/2.png"};
     private Background bg;
     private static UserInterface UI;
     private Menu menu;
@@ -35,6 +68,7 @@ public class Board extends JPanel implements ActionListener {
     
     public Board() 
     {
+    	staticBoard = this;
     	
     	menu = new Menu(this);
     	this.addMouseListener(new Mouse(this, menu));
@@ -95,6 +129,10 @@ public class Board extends JPanel implements ActionListener {
     public void setTile(int x, int y, Tile t)
     {
     	map.get(x).set(y, t);
+    }
+    public static Board getStaticBoard()
+    {
+    	return staticBoard;
     }
 
     @Override
@@ -297,7 +335,8 @@ public class Board extends JPanel implements ActionListener {
     		if (menu.isTrump())
         	{
     			System.out.println("Hello");
-        		players.get(0).setImage(new ImageIcon("trumpHead.png"));
+        		//players.get(0).setImage(new ImageIcon("TrumpSprites/TrumpFront.png"));
+        		players.get(0).setSprites(TrumpSprites);
         	}
     		else
     		{
@@ -308,12 +347,14 @@ public class Board extends JPanel implements ActionListener {
     	{
     		if (menu.isTrump())
         	{
-        		players.get(0).setImage(new ImageIcon("trumpHead.png"));
+        		//players.get(0).setImage(new ImageIcon("TrumpSprites/TrumpFront.png"));
+        		players.get(0).setSprites(TrumpSprites);
         		players.get(1).setImage(new ImageIcon("hillaryHead.png"));
         	}
     		else
     		{
-    			players.get(1).setImage(new ImageIcon("trumpHead.png"));
+    			//players.get(1).setImage(new ImageIcon("TrumpSprites/TrumpFront.png"));
+        		players.get(0).setSprites(TrumpSprites);
         		players.get(0).setImage(new ImageIcon("hillaryHead.png"));
     		}
     	}

@@ -6,7 +6,7 @@ import java.util.List;
 public class Bomb extends Tile {
 
 	private int delay;
-	private final int waitDestruction = 130;
+	private final int waitDestruction = 100;
 	private Player player;
 	private int tileX;
 	private int tileY;
