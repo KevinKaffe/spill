@@ -75,6 +75,7 @@ public class Board extends JPanel implements ActionListener {
 
   	    players.add(new Player(this, PlayerType.Player1,0));
   	    players.add(new Player(this, PlayerType.Player2,1));
+  	    players.add(new NPC(this, PlayerType.AI,2));	
  
         addKeyListener(new TAdapter());
         setFocusable(true);
@@ -120,11 +121,23 @@ public class Board extends JPanel implements ActionListener {
         	}
         	 
         }
-        setTile(10,10, new Box ("box.png", 10*36, 10*36));
-        setTile(11,11, new Box ("box.png", 11*36, 11*36));
-        setTile(11,10, new Box ("box.png", 11*36, 10*36));
-        setTile(10,11, new Box ("box.png", 10*36, 11*36));
-    	}
+        
+        for (int i = 1; i < 19; i+= 3)
+        {
+        	for (int j = 1; j < 18; j += 3)
+        	{
+        		if (!(j == 1 && i == 1 ) && !(i == 1 && j == 16) && !(i == 16 && j == 1) && !(i == 16 && j == 16))
+        		{
+            	  	setTile(i,j, new Box ("box.png", (i)*36, (j)*36));
+                	setTile(i,j+1, new Box ("box.png", (i)*36, (j+1)*36));
+                	setTile(i+1,j, new Box ("box.png", (i+1)*36, (j)*36));
+                	setTile(i+1,j+1, new Box ("box.png", (i+1)*36, (j+1)*36));
+        		}
+        	}    
+        }
+        
+
+    }
 
     public void setTile(int x, int y, Tile t)
     {
@@ -133,6 +146,11 @@ public class Board extends JPanel implements ActionListener {
     public static Board getStaticBoard()
     {
     	return staticBoard;
+    }
+    
+    public Tile getTileMap(int x, int y)
+    {
+    	return map.get(x).get(y);
     }
 
     @Override
@@ -245,6 +263,11 @@ public class Board extends JPanel implements ActionListener {
             
             for (Player player : players)
             {
+            	 if (player instanceof NPC)
+                 {
+                  	((NPC) player).realTimeDecision();
+                 }
+            	  
                 for(Bomb bomb:player.getBombs())
                 {
                 	bomb.tick();
@@ -254,6 +277,8 @@ public class Board extends JPanel implements ActionListener {
                 	fire.tick();
                 }
                 player.tick();
+                
+              
             }
         
             repaint();  
@@ -267,7 +292,11 @@ public class Board extends JPanel implements ActionListener {
         public void keyReleased(KeyEvent e) {
         	for (Player player : players)
         	{
-        		player.keyReleased(e);
+        		if (!(player instanceof NPC))
+        		{
+        			player.keyReleased(e);
+        		}
+        		
         	}
             
         }
@@ -276,7 +305,10 @@ public class Board extends JPanel implements ActionListener {
         public void keyPressed(KeyEvent e) {
         	for (Player player : players)
         	{
-        		player.keyPressed(e);
+        		if (!(player instanceof NPC))
+        		{
+        			player.keyPressed(e);
+        		}
         	}
         }
     }
@@ -314,6 +346,7 @@ public class Board extends JPanel implements ActionListener {
 		   					|| (fire.getTileX() + posOrNegX*i == playerCurrent.getTileX() && fire.getTileY() + posOrNegY*i == playerCurrent.getUpperTileY())
 		   					|| (fire.getTileX() + posOrNegX*i == playerCurrent.getUpperTileX() && fire.getTileY() + posOrNegY*i == playerCurrent.getUpperTileY()))
 		   			{
+
 		   				playerCurrent.decreaseHealth();
 		   			}
 		   		}
@@ -328,13 +361,12 @@ public class Board extends JPanel implements ActionListener {
     }
     
     public void ready()
-    {
+    {    	
     	if (!menu.isTwoPlayer())
     	{
     		players.remove(1);
     		if (menu.isTrump())
         	{
-    			System.out.println("Hello");
         		//players.get(0).setImage(new ImageIcon("TrumpSprites/TrumpFront.png"));
         		players.get(0).setSprites(TrumpSprites);
         	}
@@ -358,7 +390,22 @@ public class Board extends JPanel implements ActionListener {
         		players.get(0).setImage(new ImageIcon("hillaryHead.png"));
     		}
     	}
-    	  		
+    	  
+    	for (Player npc : players)
+    	{
+    		if (npc.getId() == 2)
+    		{
+    			npc.setImage(new ImageIcon("player.png"));
+    		}
+    		else if (npc.getId() == 3)
+    		{
+    			//sette image til npc nr 2
+    		}
+    		else if (npc.getId() == 4)
+			{
+    			//sette image til npc nr 3
+			}			
+    	}
     	state = State.GAME;
     }
 

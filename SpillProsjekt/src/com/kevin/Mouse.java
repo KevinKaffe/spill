@@ -23,15 +23,10 @@ public class Mouse implements MouseListener{
 	@Override
 	public void mousePressed(MouseEvent e) 
 	{
-
-		System.out.println(e.getX());
-		System.out.println(e.getY());
-		
 		if (!menu.getBackStack().isEmpty())
 		{
 			if (e.getX() > 50 && e.getY() > 100 && e.getX() < 190 && e.getY() < 160)
 			{
-				System.out.println("Hello");
 				menu.setBackBtnHover();
 			}
 		}
