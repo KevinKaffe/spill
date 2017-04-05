@@ -21,6 +21,8 @@ import javax.swing.Timer;
 
 public class Board extends JPanel implements ActionListener {
 
+	private boolean pause = false;
+	private boolean resest = false;
 	private Timer timer;
     private final int DELAY = 1000/60;
     private List<Player> players = new ArrayList<>();
@@ -138,7 +140,6 @@ public class Board extends JPanel implements ActionListener {
         
 
     }
-
     public void setTile(int x, int y, Tile t)
     {
     	map.get(x).set(y, t);
@@ -234,6 +235,15 @@ public class Board extends JPanel implements ActionListener {
 		   			g2d.drawString(strings.getString(), strings.getVal1(), strings.getVal2());
 		   		}
 		   	}
+		   	
+			if (pause)
+    		{
+				g2d.setFont(new Font("TimesRoman", Font.BOLD, 24));
+				g2d.setColor(Color.WHITE);
+    			g2d.drawString("PAUSE", 300+5,720/2);
+    			g2d.setFont(new Font("TimesRoman", Font.PLAIN, 20));
+    			g2d.drawString("press 'P' to continue", 300-35,720/2 + 20);
+    		}
        }
    }
 
@@ -251,7 +261,7 @@ public class Board extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
        
-    	if (state == State.GAME)
+    	if (state == State.GAME && !pause)
     	{
     		for(List<Tile> line:map)
             {
@@ -281,8 +291,9 @@ public class Board extends JPanel implements ActionListener {
               
             }
         
-            repaint();  
+             
     	}
+    	repaint(); 
         
     }
     
@@ -290,6 +301,10 @@ public class Board extends JPanel implements ActionListener {
 
         @Override
         public void keyReleased(KeyEvent e) {
+    		if (e.getKeyCode() == KeyEvent.VK_P)
+    		{
+    			pause = !pause;		
+    		}
         	for (Player player : players)
         	{
         		if (!(player instanceof NPC))
@@ -303,6 +318,8 @@ public class Board extends JPanel implements ActionListener {
 
         @Override
         public void keyPressed(KeyEvent e) {
+        	
+   
         	for (Player player : players)
         	{
         		if (!(player instanceof NPC))

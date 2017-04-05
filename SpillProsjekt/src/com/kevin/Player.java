@@ -9,6 +9,7 @@ import java.util.List;
 import javax.swing.ImageIcon;
 
 public class Player {
+	
 	private int fireLevel;
 	private boolean[] keysDown ={false,false,false,false};//For � ikke f� delay n�r man f�rst g�r en vei s� snur
 	protected int x, y,hp,maxBombs,id,invincibility;
@@ -128,13 +129,16 @@ public class Player {
 	{
 		return image;
 	}
+	
+
 	public void keyPressed(KeyEvent e)
 	{
+		int key = e.getKeyCode();
+		
 		if (dead)
 		{
 			return;
-		}
-		int key = e.getKeyCode();
+		}		
 		
 		if(type==PlayerType.Player1)
 		{
