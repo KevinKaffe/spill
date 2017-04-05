@@ -7,6 +7,7 @@ import java.util.Stack;
 
 import javax.swing.ImageIcon;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -124,7 +125,15 @@ public class Menu{
 		else if (!start && howToPlay)
 		{
 			g2d.setFont(new Font("TimesRoman", Font.BOLD, 36));
-			g2d.drawString("You're fired!" ,295, 325);
+			g2d.setColor(Color.WHITE);
+			g2d.drawString("How to play" ,295, 325);
+			g2d.setColor(Color.BLACK);
+			g2d.setFont(new Font("TimesRoman", Font.PLAIN, 28));
+			g2d.drawString("Controls" ,150, 385);
+			g2d.setFont(new Font("TimesRoman", Font.ITALIC, 24));
+			g2d.drawString("Player 1:" ,100, 435);
+			g2d.drawImage(new ImageIcon("Controls_Player1.png").getImage(), 100, 450, parent);
+			//g2d.drawString("Player 2:" ,100, 550);
 		}
 		else if (start && !playerAmount)
 		{
