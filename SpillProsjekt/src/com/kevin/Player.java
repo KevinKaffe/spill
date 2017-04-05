@@ -362,10 +362,15 @@ public class Player {
 			y -= velY;
 		}
 	}
+
 	
 	public void keyReleased(KeyEvent e)
 	{
 		int key = e.getKeyCode();
+		if(key==KeyEvent.VK_ESCAPE)
+		{
+			
+		}
 		if (type == PlayerType.Player1)
 		{
 			if(key == KeyEvent.VK_LEFT)

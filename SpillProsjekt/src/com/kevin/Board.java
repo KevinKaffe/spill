@@ -21,10 +21,14 @@ import javax.swing.Timer;
 
 public class Board extends JPanel implements ActionListener {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private Timer timer;
     private final int DELAY = 1000/60;
-    private List<Player> players = new ArrayList<>();
-    private List<List<Tile>> map = new ArrayList<>();
+    private List<Player> players;
+    private List<List<Tile>> map;
     private static Board staticBoard;
     private String[] TrumpSprites = {"TrumpSprites/Front/0.png",
     		"TrumpSprites/Front/1.png",
@@ -69,14 +73,9 @@ public class Board extends JPanel implements ActionListener {
     public Board() 
     {
     	staticBoard = this;
-    	
-    	menu = new Menu(this);
-    	this.addMouseListener(new Mouse(this, menu));
+    	initMenu();
+    	initPlayers();
 
-  	    players.add(new Player(this, PlayerType.Player1,0));
-  	    players.add(new Player(this, PlayerType.Player2,1));
-  	    players.add(new NPC(this, PlayerType.AI,2));	
- 
         addKeyListener(new TAdapter());
         setFocusable(true);
         setBackground(Color.BLACK);
@@ -84,7 +83,23 @@ public class Board extends JPanel implements ActionListener {
         timer.start();
         bg = new Background("background.png");
         UI = new UserInterface(720-36,0);
-        for(int i =0; i <20; i++)
+        
+
+    }
+    public void initMenu()
+    {
+    	menu = new Menu(this);
+    	this.addMouseListener(new Mouse(this, menu));
+
+    }
+    public void initPlayers()
+    {
+    	map = new ArrayList<>();
+    	players = new ArrayList<>();
+  	    /*players.add(new Player(this, PlayerType.Player1,0));
+  	    players.add(new Player(this, PlayerType.Player2,1));
+  	    players.add(new NPC(this, PlayerType.AI,2));*/
+        for(int i =0; i <19; i++)
         {
         	ArrayList<Tile> temp=new ArrayList<>();
         	for(int j =0; j < 19; j++)
@@ -135,10 +150,8 @@ public class Board extends JPanel implements ActionListener {
         		}
         	}    
         }
-        
 
     }
-
     public void setTile(int x, int y, Tile t)
     {
     	map.get(x).set(y, t);
@@ -248,6 +261,11 @@ public class Board extends JPanel implements ActionListener {
 		return (map.get(posX).get(posY) instanceof Box);
 	}
 	
+	public boolean isObstractle(int posX, int posY)
+	{
+		return isBoulder(posX, posY) || isBox(posX, posY);
+	}
+	
     @Override
     public void actionPerformed(ActionEvent e) {
        
@@ -281,9 +299,9 @@ public class Board extends JPanel implements ActionListener {
               
             }
         
-            repaint();  
+            
     	}
-        
+        repaint();
     }
     
     private class TAdapter extends KeyAdapter {
@@ -303,6 +321,13 @@ public class Board extends JPanel implements ActionListener {
 
         @Override
         public void keyPressed(KeyEvent e) {
+        	if(e.getKeyCode()==KeyEvent.VK_ESCAPE)
+        	{
+        		players.clear();
+        		menu.resetMenu();
+        		initPlayers();
+        		state=State.MENU;
+        	}
         	for (Player player : players)
         	{
         		if (!(player instanceof NPC))
@@ -364,9 +389,12 @@ public class Board extends JPanel implements ActionListener {
     {    	
     	if (!menu.isTwoPlayer())
     	{
-    		players.remove(1);
+    		players.add(new Player(this, PlayerType.Player1,0));
+			players.add(new NPC(this, PlayerType.AI,2));
+    		//players.remove(1);
     		if (menu.isTrump())
         	{
+    			System.out.println("ALRIGHT");
         		//players.get(0).setImage(new ImageIcon("TrumpSprites/TrumpFront.png"));
         		players.get(0).setSprites(TrumpSprites);
         	}
@@ -376,9 +404,13 @@ public class Board extends JPanel implements ActionListener {
     		}
     	}
     	else
-    	{
+    	{    	
+    		
     		if (menu.isTrump())
-        	{
+    		{
+    			players.add(new Player(this, PlayerType.Player1,0));
+    			players.add(new NPC(this, PlayerType.AI,2));
+
         		//players.get(0).setImage(new ImageIcon("TrumpSprites/TrumpFront.png"));
         		players.get(0).setSprites(TrumpSprites);
         		players.get(1).setImage(new ImageIcon("hillaryHead.png"));

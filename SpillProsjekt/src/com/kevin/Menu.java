@@ -14,12 +14,12 @@ import java.awt.Image;
 
 public class Menu{
 	
-	private boolean start = false;
-	private boolean music = true;
-	private boolean isTrump = false;
-	private boolean playerAmount = false;
-	private boolean howToPlay = false;
-	private boolean twoPlayer = false;
+	public boolean start;
+	private boolean music;
+	private boolean isTrump;
+	private boolean playerAmount;
+	private boolean howToPlay;
+	private boolean twoPlayer;
 	private Graphics2D g2d;
 	
 	private Element startBtn;
@@ -46,7 +46,6 @@ public class Menu{
 	
 	public Menu (Board parent) 
 	{
-		g2d = null;
 		
 		ImageIcon ii = new ImageIcon("greenBlueBack.jpg");
 		background = ii.getImage();
@@ -55,7 +54,7 @@ public class Menu{
 		
 		startBtn = new Element(35, 200);
 		startBtn.addImage("StartBtn.png", 0, 0);
-		buttons.add(startBtn);
+		
 		
 		startBtnHover = new Element(35, 200);
 		startBtnHover.addImage("StartBtnHover.png", 0, 0);
@@ -80,15 +79,29 @@ public class Menu{
 		howToPlayBtn.addImage("HowToPlayBtn.png", 0, 0);
 		howToPlayBtnHover = new Element(610, 200);
 		howToPlayBtnHover.addImage("HowToPlayBtnHover.png", 0, 0);
-		
-		buttons.add(howToPlayBtn);
+	
 		
 		backBtn = new Element(50, 100);
 		backBtn.addImage("BackBtn.png", 0, 0);
 		backBtnHover = new Element(50, 100);
-		backBtnHover.addImage("BackBtnHover.png", 0, 0);			
+		backBtnHover.addImage("BackBtnHover.png", 0, 0);
+		
+		resetMenu();
 	}
 	
+	public void resetMenu()
+	{
+		g2d = null;
+		start = false;
+		music = true;
+		isTrump = false;
+		playerAmount = false;
+		howToPlay = false;
+		twoPlayer = false;
+		buttons.clear();
+		buttons.add(startBtn);
+		buttons.add(howToPlayBtn);
+	}
 
 	public void setGraphics(Graphics g)
 	{
@@ -129,7 +142,7 @@ public class Menu{
 		}
 		
 		
-		g2d.drawImage(new ImageIcon("title.png").getImage(), 200, 5, parent);
+		g2d.drawImage(new ImageIcon("Title.png").getImage(), 200, 5, parent);
 		for (Element btn : buttons)
 		{
 			for(Triplette icon : btn.getIcons())
