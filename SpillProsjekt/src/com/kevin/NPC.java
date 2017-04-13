@@ -50,6 +50,7 @@ public class NPC extends Player{
 		lookRight = upperTileX + lookLength;
 		if(!tileIsSafe(getTileX(), getTileY()))
 		{
+			System.out.println("I'm not safe");
 			gotoTile(getClosestSafeTile(getTileX(), getTileY()));
 		}
 		//stopper før han går inn i flamme
@@ -157,15 +158,127 @@ public class NPC extends Player{
 		Pair down = recursiveSearch(tileX, tileY+1);
 		return minPair(minPair(left,right),minPair(up,down));
 	}
+	//Funksjon som finner en vei til en tile. Ukjent hva den vil gjøre dersom det ikke finnes en vei
+	// AKA Throw new IllegalRIPGameException();
 	private void gotoTile(Pair p)
 	{
 		if(p.getFirst()<0)
 		{
 			return;
 		}
-		x=p.getFirst()*36;
-		y=p.getSecond()*36;
+		System.out.println(p);
+		Node dummy = new Node(false, -1, -1);
+		List<Node> temp;
+		List<List<Node>> nodeMap = new ArrayList<>();
+		for(int i =0; i < 19;i++)
+		{
+			temp= new ArrayList<>();
+			for (int j =0; j<19;j++)
+			{
+				temp.add(new Node(Board.getStaticBoard().isObstractle(i, j), i*36, j*36));
+			}
+			nodeMap.add(temp);
+		}
+		for(int i =0; i < 19;i++)
+		{
+			for (int j =0; j<19;j++)
+			{
+				//System.out.println(nodeMap.get(i).get(j));
+				if(i==0)
+				{
+					if(j==0)
+					{
+						nodeMap.get(i).get(j).setRelations(dummy, dummy, nodeMap.get(i+1).get(j), nodeMap.get(i).get(j+1));
+					}
+					else if(j==18)
+					{
+						nodeMap.get(i).get(j).setRelations(dummy, nodeMap.get(i).get(j-1), nodeMap.get(i+1).get(j), dummy);
+					}
+					else
+					{
+						nodeMap.get(i).get(j).setRelations(dummy, nodeMap.get(i).get(j-1), nodeMap.get(i+1).get(j),  nodeMap.get(i).get(j+1));
+					}
+				}
+				else if(i==18)
+				{
+					if(j==0)
+					{
+						nodeMap.get(i).get(j).setRelations(nodeMap.get(i-1).get(j), dummy, dummy, nodeMap.get(i).get(j+1));
+					}
+					else if(j==18)
+					{
+						nodeMap.get(i).get(j).setRelations(nodeMap.get(i-1).get(j), nodeMap.get(i).get(j-1), dummy, dummy);
+					}
+					else
+					{
+						nodeMap.get(i).get(j).setRelations(nodeMap.get(i-1).get(j), nodeMap.get(i).get(j-1), dummy,  nodeMap.get(i).get(j+1));
+					}
+				}
+				else
+				{
+					if(j==0)
+					{
+						nodeMap.get(i).get(j).setRelations(nodeMap.get(i-1).get(j), dummy, nodeMap.get(i+1).get(j), nodeMap.get(i).get(j+1));
+					}
+					else if(j==18)
+					{
+						nodeMap.get(i).get(j).setRelations(nodeMap.get(i-1).get(j), nodeMap.get(i).get(j-1), nodeMap.get(i+1).get(j), dummy);
+					}
+					else
+					{
+						nodeMap.get(i).get(j).setRelations(nodeMap.get(i-1).get(j), nodeMap.get(i).get(j-1), nodeMap.get(i+1).get(j),  nodeMap.get(i).get(j+1));
+					}
+				}
+			}
+			
+		}
+		nodeMap.get(getTileX()).get(getTileY()).setEnabled();
+		nodeMap.get(p.getFirst()).get(p.getSecond()).setGoal();
+		System.out.println(nodeMap.get(p.getFirst()).get(p.getSecond()).getY());
+		for(int i =0; i < 19*19; i++)
+		{
+			for(List<Node> nodeList : nodeMap)
+			{
+				for(Node node:nodeList)
+				{
+					if(node.tick())
+					{
+						System.out.println("PFF");
+						walkThePath(node);
+						return;
+					}
+				}
+			}
+		}
+		/*x=p.getFirst()*36;
+		y=p.getSecond()*36;*/
 		
+	}
+	private void walkThePath(Node node)
+	{
+		if(node.getParent()!=node)
+		{
+			walkThePath(node.getParent());
+		}
+		while(x!=node.getX() && y!=node.getY())
+		{
+			if(x<node.getX())
+			{
+				x++;
+			}
+			else if(x!=node.getX())
+			{
+				x--;
+			}
+			if(y<node.getY())
+			{
+				y++;
+			}
+			else if(y!=node.getY())
+			{
+				y--;
+			}
+		}
 	}
 	private Pair recursiveSearch(int tileX, int tileY)
 	{
