@@ -36,9 +36,10 @@ public class Player {
 	private final int spriteWidth=18; //Halve vidden, vel � merke
 	private Image image,trueImage;
 	private double superPower;
+	private Character character;
 	public Player(Board board, PlayerType type, int id)
 	{
-		superPower=100;
+		superPower=600;
 		dead =false;
 		this.id=id;
 		maxBombs=3;
@@ -157,8 +158,10 @@ public class Player {
 				if (bombs.size()<maxBombs)
 				{
 		
-					bombs.add(new Bomb("bomb.png", Math.round((getX()+spriteWidth)/36)*36+ adjustX, Math.round(getY()/36)*36+36 + adjustY, this, 
-							getTileX(), getTileY()));
+					//bombs.add(new Bomb("bomb.png", Math.round((getX()+spriteWidth)/36)*36+ adjustX, Math.round(getY()/36)*36+36 + adjustY, this, 
+							//getTileX(), getTileY()));
+					bombs.add(new Bomb("bomb.png",Math.round((getX()+spriteWidth)/36)*36,Math.round((getY()+30)/36)*36, this, 
+							Math.round((getX()+spriteWidth)/36), Math.round((getY()+30)/36)));
 					//parent.setTile((bomb.getX()+7)/36, (bomb.getY()+10)/36,new Boulder("boulder.png", bomb.getX()+7, bomb.getY()+10));
 					//System.out.println("X: " + bomb.getTileX() + "  Y: " + bomb.getTileY());
 					//Må justere for å plassere midt på en tile, samtidig som vi må matche med parent.map
@@ -166,7 +169,10 @@ public class Player {
 			}
 			else if(key==KeyEvent.VK_ENTER)
 			{
-				//if()
+				if(superPower>=100)
+				{
+					superPower();
+				}
 			}
 			
 		}
@@ -198,7 +204,7 @@ public class Player {
 			}
 			else if (key == KeyEvent.VK_T)
 			{
-				if (bombs.size()<maxBombs)
+				if (bombs.size()<maxBombs && !parent.isTrumpWall(Math.round(getX()/36),Math.round(getY()/36)+1))
 				{
 		
 					bombs.add(new Bomb("bomb.png", Math.round(getX()/36)*36 + adjustX, Math.round(getY()/36)*36+36 + adjustY, this, 
@@ -210,8 +216,23 @@ public class Player {
 			}
 		}
 	}
-	public void setSprites(String[] sprites)
+	private void superPower()
 	{
+		switch(character)
+		{
+		case Trump:
+			if(parent.isEmpty(lowerTileX, lowerTileY))
+			{
+				parent.setTile(lowerTileX, lowerTileY, new TrumpWall("wall.png", lowerTileX*36, lowerTileY*36));
+				superPower-=100;
+				System.out.println(superPower);
+				Board.get_ui().getElements().get(id).getIcons().get(2).updateWidth(superPower/6);
+			}
+		}
+	}
+	public void setSprites(String[] sprites, Character character)
+	{
+		this.character=character;
 		this.sprites = sprites;
 	}
 	public void destroyBomb(Bomb bomb)
@@ -283,10 +304,10 @@ public class Player {
 		{
 			spriteState=0;
 		}
-		if(localTicker%500==0 &&superPower+4<100)
+		if(localTicker%500==0 &&superPower+4<600)
 		{
-			superPower+=100/6;
-			Board.get_ui().getElements().get(id).getIcons().get(2).updateWidth(superPower+4);
+			superPower+=100;
+			Board.get_ui().getElements().get(id).getIcons().get(2).updateWidth(superPower/6+0.1);
 		}
 		this.setImage(new ImageIcon(sprites[spriteState%4 + 4*walkState]));
 		if(invincibility>0)
@@ -322,6 +343,11 @@ public class Player {
 			y -= velY;
 		}
 		else if (parent.isBox(lowerTileX, lowerTileY) || parent.isBox(upperTileX, lowerTileY)||parent.isBox(upperTileX, upperTileY) || parent.isBox(lowerTileX, upperTileY))
+		{
+			x -= velX;
+			y -= velY;
+		}
+		else if (character!=Character.Trump &&(parent.isTrumpWall(lowerTileX, lowerTileY) || parent.isTrumpWall(upperTileX, lowerTileY)||parent.isTrumpWall(upperTileX, upperTileY) || parent.isTrumpWall(lowerTileX, upperTileY)))
 		{
 			x -= velX;
 			y -= velY;

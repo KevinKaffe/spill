@@ -224,10 +224,18 @@ public class Board extends JPanel implements ActionListener {
 	{
 		return (map.get(posX).get(posY) instanceof Boulder);
 	}
+	public boolean isTrumpWall(int posX, int posY)
+	{
+		return (map.get(posX).get(posY) instanceof TrumpWall);
+	}
 
 	public boolean isBox(int posX, int posY)
 	{
 		return (map.get(posX).get(posY) instanceof Box);
+	}
+	public boolean isEmpty(int posX, int posY)
+	{
+		return !(isBoulder(posX, posY) || isTrumpWall(posX, posY) || isBox(posX, posY));
 	}
 	
     @Override
@@ -307,6 +315,12 @@ public class Board extends JPanel implements ActionListener {
 			   				new Tile("asfalt.jpg", fire.getX() - player.adjustX+2 + 36*i*posOrNegX,fire.getY() + i*36*posOrNegY - player.adjustY));
 		   			fire.setBoundry(i, index);
 		   		}
+		   		if (isTrumpWall(fire.getTileX() + posOrNegX*i, fire.getTileY() + posOrNegY*i))
+		   		{  		
+		   			setTile(fire.getTileX() + posOrNegX*i, fire.getTileY() + posOrNegY*i,
+			   				new Tile("asfalt.jpg", fire.getX() - player.adjustX+2 + 36*i*posOrNegX,fire.getY() + i*36*posOrNegY - player.adjustY));
+		   			fire.setBoundry(i, index);
+		   		}
 		   		for (Player playerCurrent : players)
 		   		{
 		   			if ((fire.getTileX() + posOrNegX*i == playerCurrent.getTileX() && fire.getTileY() + posOrNegY*i == playerCurrent.getTileY()) || 
@@ -336,7 +350,7 @@ public class Board extends JPanel implements ActionListener {
         	{
     			System.out.println("Hello");
         		//players.get(0).setImage(new ImageIcon("TrumpSprites/TrumpFront.png"));
-        		players.get(0).setSprites(TrumpSprites);
+        		players.get(0).setSprites(TrumpSprites,Character.Trump);
         	}
     		else
     		{
@@ -348,13 +362,13 @@ public class Board extends JPanel implements ActionListener {
     		if (menu.isTrump())
         	{
         		//players.get(0).setImage(new ImageIcon("TrumpSprites/TrumpFront.png"));
-        		players.get(0).setSprites(TrumpSprites);
+        		players.get(0).setSprites(TrumpSprites,Character.Trump);
         		players.get(1).setImage(new ImageIcon("hillaryHead.png"));
         	}
     		else
     		{
     			//players.get(1).setImage(new ImageIcon("TrumpSprites/TrumpFront.png"));
-        		players.get(0).setSprites(TrumpSprites);
+        		players.get(0).setSprites(TrumpSprites,Character.Trump);
         		players.get(0).setImage(new ImageIcon("hillaryHead.png"));
     		}
     	}

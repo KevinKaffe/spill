@@ -38,7 +38,13 @@ public class Triplette {
 	public void updateWidth(double percentage)
 	{
 		//widthScale=percentage;
-		img =img.getScaledInstance((int)Math.round(imageWidth*percentage/100), imageHeight, Image.SCALE_FAST);
+		if(percentage<1)
+			img=new ImageIcon("").getImage();
+		else
+		{
+			img =ogImage.getScaledInstance((int)Math.round(imageWidth*percentage/100), imageHeight, Image.SCALE_FAST);
+		}
+
 		//img =img.getScaledInstance(imageWidth*percentage/100, img.getHeight(Board.getStaticBoard()), Image.SCALE_SMOOTH);
 	}
 	public String getString()
