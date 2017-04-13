@@ -9,20 +9,21 @@ import java.util.List;
 import javax.swing.ImageIcon;
 
 public class Player {
+	
 	private int fireLevel;
 	private boolean[] keysDown ={false,false,false,false};//For � ikke f� delay n�r man f�rst g�r en vei s� snur
-	private int x, y,hp,maxBombs,id,invincibility;
+	protected int x, y,hp,maxBombs,id,invincibility;
 	private boolean dead;
-	private int lowerTileX; // spillers posisjon på "map"
-	private int lowerTileY;
-	private int upperTileX;
-	private int upperTileY;
-	private double velX, velY;
-	private double speed;
+	protected int lowerTileX; // spillers posisjon på "map"
+	protected int lowerTileY;
+	protected int upperTileX;
+	protected int upperTileY;
+	protected double velX, velY;
+	protected double speed;
 	private boolean isDead = false;
 	private PlayerType type;
-	private Board parent;
-	private List<Bomb> bombs = new ArrayList<>();
+	protected Board parent;
+	protected List<Bomb> bombs = new ArrayList<>();
 	private Collection<Bomb> bomb_removal_queue = new ArrayList<>();
 	private List<Fire> fires = new ArrayList<>();
 	private Collection<Fire> fire_removal_queue = new ArrayList<>();
@@ -30,11 +31,11 @@ public class Player {
 	public static final int adjustY = -10;
 	private String[] sprites;
 	private int localTicker;
-	private int walkState; //For � vite hvilken side man skal se han fra
+	private int walkState; //For � vite hvilken side man skal se han fra
 	private int spriteState; //For animasjoner
 	private final int invincibilityCoolDownForAASjekkeOmSpillerenEndaKanDoEllerOmHanFortsattIkkeSkalMisteLivNaarHanBlirTruffetAvEnFlamme_DenneCooldownSkalVearePaaRundt100MS=110;
-	private final int spriteWidth=18; //Halve vidden, vel � merke
-	private Image image,trueImage;
+	protected final int spriteWidth=18; //Halve vidden, vel � merke
+	protected Image image,trueImage;
 	private double superPower;
 	private Character character;
 	public Player(Board board, PlayerType type, int id)
@@ -53,10 +54,15 @@ public class Player {
 			x = 2*36;
 			y = 2*36;
 		}
-		else{
+		else if (type == PlayerType.AI){
 			ii = new ImageIcon("player.png");
 			x = 16*36;
 			y = 16*36;
+		}
+		else{
+			ii = new ImageIcon("player.png");
+			x = 14*36;
+			y = 4*36;
 		}
 		trueImage=ii.getImage();
 		image = ii.getImage();
@@ -66,9 +72,9 @@ public class Player {
 		spriteState=0;
 		walkState=0;
 		localTicker=0;
-		x = 4*36;
+		//x = 4*36;
 		hp = 3;
-		y = 4*36;
+		//y = 4*36;
 		velX = 0;
 		velY = 0;
 		speed = 4.0;
@@ -76,6 +82,11 @@ public class Player {
 		upperTileX=Math.round((x+spriteWidth)/36);
 		lowerTileY = Math.round(y/36) + 1;
 		upperTileY = Math.round((y-image.getHeight(parent)/4)/36)+1;
+	}
+	
+	public int getId()
+	{
+		return id;
 	}
 
 	public void setImage(ImageIcon ii)
@@ -119,13 +130,16 @@ public class Player {
 	{
 		return image;
 	}
+	
+
 	public void keyPressed(KeyEvent e)
 	{
+		int key = e.getKeyCode();
+		
 		if (dead)
 		{
 			return;
-		}
-		int key = e.getKeyCode();
+		}		
 		
 		if(type==PlayerType.Player1)
 		{
@@ -158,10 +172,32 @@ public class Player {
 				if (bombs.size()<maxBombs)
 				{
 		
+
 					//bombs.add(new Bomb("bomb.png", Math.round((getX()+spriteWidth)/36)*36+ adjustX, Math.round(getY()/36)*36+36 + adjustY, this, 
 							//getTileX(), getTileY()));
-					bombs.add(new Bomb("bomb.png",Math.round((getX()+spriteWidth)/36)*36,Math.round((getY()+30)/36)*36, this, 
+					/*bombs.add(new Bomb("bomb.png",Math.round((getX()+spriteWidth)/36)*36,Math.round((getY()+30)/36)*36, this, 
 							Math.round((getX()+spriteWidth)/36), Math.round((getY()+30)/36)));
+*/
+					if (parent.isBoulder(getTileX(), getTileY()) || parent.isBox(getTileX(), getTileY()))
+					{
+						if (keysDown[1])
+						{
+							bombs.add(new Bomb("bomb.png", (getTileX()+1)*36+ adjustX, (getTileY())*36 + adjustY, this, 
+									getTileX()+1, getTileY()));
+						}
+						else if (keysDown[0])
+						{
+							bombs.add(new Bomb("bomb.png", (getTileX())*36+ adjustX, (getTileY()-1)*36 + adjustY, this, 
+									getTileX(), getTileY()-1));
+						}
+					}
+					else
+					{
+						bombs.add(new Bomb("bomb.png", getTileX()*36+ adjustX, getTileY()*36 + adjustY, this, 
+								getTileX(), getTileY()));
+					}
+					
+//>>>>>>> branch 'master' of https://github.com/KevinKaffe/spill
 					//parent.setTile((bomb.getX()+7)/36, (bomb.getY()+10)/36,new Boulder("boulder.png", bomb.getX()+7, bomb.getY()+10));
 					//System.out.println("X: " + bomb.getTileX() + "  Y: " + bomb.getTileY());
 					//Må justere for å plassere midt på en tile, samtidig som vi må matche med parent.map
@@ -207,8 +243,8 @@ public class Player {
 				if (bombs.size()<maxBombs && !parent.isTrumpWall(Math.round(getX()/36),Math.round(getY()/36)+1))
 				{
 		
-					bombs.add(new Bomb("bomb.png", Math.round(getX()/36)*36 + adjustX, Math.round(getY()/36)*36+36 + adjustY, this, 
-							Math.round(getX()/36), Math.round(getY()/36)+1));
+					bombs.add(new Bomb("bomb.png", getTileX()*36+ adjustX, getTileY()*36 + adjustY, this, 
+							getTileX(), getTileY()));
 					//parent.setTile((bomb.getX()+7)/36, (bomb.getY()+10)/36,new Boulder("boulder.png", bomb.getX()+7, bomb.getY()+10));
 					//System.out.println("X: " + bomb.getTileX() + "  Y: " + bomb.getTileY());
 					//Må justere for å plassere midt på en tile, samtidig som vi må matche med parent.map
@@ -248,8 +284,13 @@ public class Player {
 	{
 		if(invincibility<=0)
 		{
-			this.hp--;
-			Board.get_ui().getElements().get(id).getStrings().get(0).updateString("X  "+ Integer.toString(hp));
+			//this.hp--;
+			
+			if (!(this instanceof NPC))
+			{
+				Board.get_ui().getElements().get(id).getStrings().get(0).updateString("X  "+ Integer.toString(hp));
+			}
+			
 			invincibility=invincibilityCoolDownForAASjekkeOmSpillerenEndaKanDoEllerOmHanFortsattIkkeSkalMisteLivNaarHanBlirTruffetAvEnFlamme_DenneCooldownSkalVearePaaRundt100MS;
 		}
 	}
@@ -287,6 +328,8 @@ public class Player {
 		if(!bomb_removal_queue.isEmpty())
 			bomb_removal_queue = new ArrayList<>();
 		
+		if (!(this instanceof NPC))
+		{
 		if(keysDown[0] || keysDown[1]||keysDown[2]||keysDown[3])
 		{
 			if(localTicker%6 ==0)
@@ -310,6 +353,7 @@ public class Player {
 			Board.get_ui().getElements().get(id).getIcons().get(2).updateWidth(superPower/6+0.1);
 		}
 		this.setImage(new ImageIcon(sprites[spriteState%4 + 4*walkState]));
+		}
 		if(invincibility>0)
 		{
 			invincibility--;
@@ -354,10 +398,15 @@ public class Player {
 		}
 		
 	}
+
 	
 	public void keyReleased(KeyEvent e)
 	{
 		int key = e.getKeyCode();
+		if(key==KeyEvent.VK_ESCAPE)
+		{
+			
+		}
 		if (type == PlayerType.Player1)
 		{
 			if(key == KeyEvent.VK_LEFT)
@@ -420,10 +469,10 @@ public class Player {
 	}
 	
 	//lager flammer i hver retning
-	public void explotion(int x, int y, int tileX, int tileY)
+	public void explotion(int x, int y, int lowerTileX, int lowerTileY)
 	{
 		// både bomber og flammer har en posisjon på "map"  og en faktisk posisjon på lærettet 
-		Fire f = new Fire ("fire.png", x-2,y, this, tileX, tileY); 
+		Fire f = new Fire ("fire.png", x-2,y, this, lowerTileX, lowerTileY); 
 		fires.add(f);
 	}
 	

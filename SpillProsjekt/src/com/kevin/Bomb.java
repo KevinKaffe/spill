@@ -25,6 +25,7 @@ public class Bomb extends Tile {
 	@Override
 	public void tick()
 	{
+		System.out.println(delay);
 		destroy();
 		delay--;
 	}
