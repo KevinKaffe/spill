@@ -28,9 +28,10 @@ public class Pair {
 	{
 		return calls;
 	}
-	public void addCall()
+	public Pair addCall()
 	{
 		calls++;
+		return this;
 	}
 	public String toString()
 	{

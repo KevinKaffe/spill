@@ -27,6 +27,7 @@ public class Board extends JPanel implements ActionListener {
 	private boolean pause = false;
 
 	private Timer timer;
+	private Mouse mouse;
     private final int DELAY = 1000/60;
     private List<Player> players;
     private List<List<Tile>> map;
@@ -90,7 +91,8 @@ public class Board extends JPanel implements ActionListener {
     public void initMenu()
     {
     	menu = new Menu(this);
-    	this.addMouseListener(new Mouse(this, menu));
+    	mouse= new Mouse(this,menu);
+    	this.addMouseListener(mouse);
 
     }
     public void initPlayers()
@@ -269,19 +271,33 @@ public class Board extends JPanel implements ActionListener {
 	{
 		return (map.get(posX).get(posY) instanceof TrumpWall);
 	}
-
+	public boolean isBomb(int posX, int posY)
+	{
+		for(Bomb b:Bomb.getBombList())
+		{
+			if(b.getTileX()==posX && b.getTileY()==posY)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+    public void addMyListener()
+    {
+    	this.addMouseListener(mouse);
+    }
 	public boolean isBox(int posX, int posY)
 	{
 		return (map.get(posX).get(posY) instanceof Box);
 	}
 	public boolean isEmpty(int posX, int posY)
 	{
-		return !(isBoulder(posX, posY) || isTrumpWall(posX, posY) || isBox(posX, posY));
+		return !(isBoulder(posX, posY) || isTrumpWall(posX, posY) || isBox(posX, posY) || isBomb(posX, posY));
 	}
 	
 	public boolean isObstractle(int posX, int posY)
 	{
-		return isBoulder(posX, posY) || isBox(posX, posY);
+		return isBoulder(posX, posY) || isBox(posX, posY) || isBomb(posX, posY);
 	}
 	
     @Override
@@ -318,6 +334,7 @@ public class Board extends JPanel implements ActionListener {
             }
     	}
         repaint();
+
 }
     
     private class TAdapter extends KeyAdapter {
@@ -347,6 +364,7 @@ public class Board extends JPanel implements ActionListener {
         		menu.resetMenu();
         		initPlayers();
         		state=State.MENU;
+            	Board.getStaticBoard().addMyListener();
         	}
         	for (Player player : players)
         	{
@@ -392,10 +410,10 @@ public class Board extends JPanel implements ActionListener {
 		   		}
 		   		for (Player playerCurrent : players)
 		   		{
-		   			if ((fire.getTileX() + posOrNegX*i == playerCurrent.getTileX() && fire.getTileY() + posOrNegY*i == playerCurrent.getTileY()) || 
-		   					(fire.getTileX() + posOrNegX*i == playerCurrent.getUpperTileX() && fire.getTileY() + posOrNegY*i == playerCurrent.getTileY())
+		   			if ((fire.getTileX() + posOrNegX*i == playerCurrent.getAvgTileX() && fire.getTileY() + posOrNegY*i == playerCurrent.getAvgTileY()) /*|| 
+		   					/*(fire.getTileX() + posOrNegX*i == playerCurrent.getUpperTileX() && fire.getTileY() + posOrNegY*i == playerCurrent.getTileY())
 		   					|| (fire.getTileX() + posOrNegX*i == playerCurrent.getTileX() && fire.getTileY() + posOrNegY*i == playerCurrent.getUpperTileY())
-		   					|| (fire.getTileX() + posOrNegX*i == playerCurrent.getUpperTileX() && fire.getTileY() + posOrNegY*i == playerCurrent.getUpperTileY()))
+		   					|| (fire.getTileX() + posOrNegX*i == playerCurrent.getUpperTileX() && fire.getTileY() + posOrNegY*i == playerCurrent.getUpperTileY())*/)
 		   			{
 
 		   				playerCurrent.decreaseHealth();
@@ -454,6 +472,7 @@ public class Board extends JPanel implements ActionListener {
     		if (npc.getId() == 2)
     		{
     			npc.setImage(new ImageIcon("player.png"));
+    			npc.setSprites(TrumpSprites, Character.Trump);
     		}
     		else if (npc.getId() == 3)
     		{
@@ -464,6 +483,7 @@ public class Board extends JPanel implements ActionListener {
     			//sette image til npc nr 3
 			}			
     	}
+    	this.removeMouseListener(mouse);
     	state = State.GAME;
     }
 

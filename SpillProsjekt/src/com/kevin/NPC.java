@@ -2,6 +2,7 @@ package com.kevin;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class NPC extends Player{
@@ -11,15 +12,15 @@ public class NPC extends Player{
 	private int lookLeft;
 	private int lookRight;
 	private int lookLength = 4;
-	
+	private Stack<Node> path= new Stack<>();
 	private double lastVelX = 0;
 	private double lastVelY = 0;
-	
+
 	private int decisionCount = 0;
 	private int preGameCap = 0;
 	private boolean madeDecision = false;
 	private int wait = 40; //tiden NPC venter mellom hvert valg
-	private int delay;
+	private int delay, checkDangerDelay, moveDelay; //For å optimalisere koden for maksimal effektivitet og minimal unødvendig bruk av ressurser
 	private List<Pair> avoidDupes;
 	private int testX, testY;
 
@@ -30,12 +31,13 @@ public class NPC extends Player{
 		super(board, type, id);
 		
 		maxBombs = 1;
-		
+		checkDangerDelay=0;
 		lookUp = lowerTileY - lookLength;
 		lookDown = upperTileY + lookLength;
 		lookLeft = lowerTileX - lookLength;
 		lookRight = upperTileX + lookLength;
 		delay = wait;
+		moveDelay=0;
 		speed = 6.0;
 	}
 	
@@ -48,20 +50,104 @@ public class NPC extends Player{
 		lookDown = upperTileY + lookLength;
 		lookLeft = lowerTileX - lookLength;
 		lookRight = upperTileX + lookLength;
-		if(!tileIsSafe(getTileX(), getTileY()))
+
+		/*if(!parent.isObstractle(getTileX(),getTileY()))
 		{
-			System.out.println("I'm not safe");
-			gotoTile(getClosestSafeTile(getTileX(), getTileY()));
+			validTileX=getTileX();
+			validTileY=getTileY();
 		}
+		else if(!parent.isObstractle(getTileX(), getUpperTileY()))
+		{
+			validTileX=getTileX();
+			validTileY=getUpperTileY();
+		}
+		else if(!parent.isObstractle(getUpperTileX(), getTileY()))
+		{
+			validTileX=getUpperTileX();
+			validTileY=getTileY();
+		}
+		else
+		{
+			validTileX=getUpperTileX();
+			validTileY=getTileY();
+		}*/
+		if(!tileIsSafe(getAvgTileX(), getAvgTileY()) &&checkDangerDelay<=0 && path.isEmpty())
+		{
+			System.out.println(getClosestSafeTile(getAvgTileX(), getAvgTileY())+"  CLOSEST");
+			gotoTile(getClosestSafeTile(getAvgTileX(), getAvgTileY()));
+			checkDangerDelay=20;
+			if(!path.isEmpty())
+				path.pop();
+		}
+		checkDangerDelay--;
 		//stopper fÃ¸r han gÃ¥r inn i flamme
-		stopBeforeFire(1,0);
+		/*stopBeforeFire(1,0);
 		stopBeforeFire(-1,0);
 		stopBeforeFire(0,1);
 		stopBeforeFire(0,-1);
-
-		
+*/
+		if(!path.isEmpty())
+		{
+			boolean[] flag={false, false};
+			if(path.get(path.size()-1).getX() -this.x> this.speed)
+			{
+				keysDown[2]=true;
+				keysDown[1]=false;
+				velX=speed;
+			}
+			else if(path.get(path.size()-1).getX() -this.x< this.speed)
+			{
+				keysDown[1]=true;
+				keysDown[2]=false;
+				velX=-speed;
+			}
+			else
+			{
+				keysDown[2]=false;
+				keysDown[1]=false;
+				flag[0]=true;
+				velX=0;
+			}
+			if(path.get(path.size()-1).getY() -this.y> this.speed)
+			{
+				keysDown[0]=true;
+				keysDown[3]=false;
+				velY=speed;
+			}
+			else if(path.get(path.size()-1).getY() -this.y< this.speed)
+			{
+				keysDown[3]=true;
+				keysDown[0]=false;
+				velY=-speed;
+			}
+			else
+			{
+				keysDown[3]=false;
+				keysDown[0]=false;
+				flag[1]=true;
+				velY=0;
+			}
+			
+			if(flag[0] && flag[1])
+			{
+				path.pop();
+			}
+			
+		}
+		else
+		{
+			//iSmart();
+		}
+		/*if(!path.isEmpty()&&moveDelay<=0)
+		{
+			Node n = path.pop();
+			this.x=n.getX();
+			this.y=n.getY();
+			moveDelay=20;
+		}*/
+		moveDelay--;
 		//starter klokka som tikker ned til neste ikke-real time valg
-		delayBeforeDecision();
+		//delayBeforeDecision();
 	}
 	//klokka
 	public void delayBeforeDecision()
@@ -74,6 +160,10 @@ public class NPC extends Player{
 		}		
 		delay--;
 	}
+	private void iSmart()
+	{
+		
+	}
 	private boolean tileIsSafe(int tileX, int tileY)
 	{
 		for(Bomb bomb: Bomb.getBombList())
@@ -85,7 +175,7 @@ public class NPC extends Player{
 				{
 					for(int i = bomb.getTileX(); i<tileX; i++)
 					{
-						if(Board.getStaticBoard().isObstractle(i, tileY))
+						if(Board.getStaticBoard().isObstractle(i, tileY) && !Board.getStaticBoard().isBomb(i, tileY))
 						{
 							walled=true;
 							break;
@@ -96,7 +186,7 @@ public class NPC extends Player{
 				{
 					for(int i = tileX; i<bomb.getTileX(); i++)
 					{
-						if(Board.getStaticBoard().isObstractle(i, tileY))
+						if(Board.getStaticBoard().isObstractle(i, tileY) &&! Board.getStaticBoard().isBomb(i, tileY))
 						{
 							walled=true;
 							break;
@@ -115,7 +205,7 @@ public class NPC extends Player{
 				{
 					for(int i = bomb.getTileY(); i<tileY; i++)
 					{
-						if(Board.getStaticBoard().isObstractle(tileX, i))
+						if(Board.getStaticBoard().isObstractle(tileX, i) && !Board.getStaticBoard().isBomb(i, tileY))
 						{
 							walled=true;
 							break;
@@ -126,7 +216,7 @@ public class NPC extends Player{
 				{
 					for(int i = tileY; i<bomb.getTileY(); i++)
 					{
-						if(Board.getStaticBoard().isObstractle(tileX, i))
+						if(Board.getStaticBoard().isObstractle(tileX, i) &&!Board.getStaticBoard().isBomb(i, tileY))
 						{
 							walled=true;
 							break;
@@ -166,7 +256,6 @@ public class NPC extends Player{
 		{
 			return;
 		}
-		System.out.println(p);
 		Node dummy = new Node(false, -1, -1);
 		List<Node> temp;
 		List<List<Node>> nodeMap = new ArrayList<>();
@@ -232,18 +321,18 @@ public class NPC extends Player{
 			}
 			
 		}
-		nodeMap.get(getTileX()).get(getTileY()).setEnabled();
+		nodeMap.get(getAvgTileX()).get(getAvgTileY()).setEnabled(true);
 		nodeMap.get(p.getFirst()).get(p.getSecond()).setGoal();
-		System.out.println(nodeMap.get(p.getFirst()).get(p.getSecond()).getY());
+		path=new Stack<>();
 		for(int i =0; i < 19*19; i++)
 		{
 			for(List<Node> nodeList : nodeMap)
 			{
 				for(Node node:nodeList)
 				{
+					//System.out.println("AAA"+node);
 					if(node.tick())
 					{
-						System.out.println("PFF");
 						walkThePath(node);
 						return;
 					}
@@ -256,11 +345,12 @@ public class NPC extends Player{
 	}
 	private void walkThePath(Node node)
 	{
-		if(node.getParent()!=node)
+		path.push(node);
+		if(!node.terminate())
 		{
 			walkThePath(node.getParent());
 		}
-		while(x!=node.getX() && y!=node.getY())
+		/*while(x!=node.getX() && y!=node.getY())
 		{
 			if(x<node.getX())
 			{
@@ -278,14 +368,12 @@ public class NPC extends Player{
 			{
 				y--;
 			}
-		}
+		}*/
 	}
 	private Pair recursiveSearch(int tileX, int tileY)
 	{
 		if(tileX>18 || tileX<0 || tileY<0 || tileY>18)
 		{
-			System.out.println(tileX+""+ tileY);
-			System.out.println(testX+"."+testY);
 			return new Pair(-2,-2);
 		}
 		for(Pair p: avoidDupes)
@@ -308,7 +396,7 @@ public class NPC extends Player{
 		Pair up = recursiveSearch(tileX, tileY-1);
 		Pair right = recursiveSearch(tileX+1, tileY);
 		Pair down = recursiveSearch(tileX, tileY+1);
-		return minPair(minPair(left,right),minPair(up,down));
+		return minPair(minPair(left,right),minPair(up,down)).addCall();
 		
 	}
 	private Pair minPair(Pair p1, Pair p2)

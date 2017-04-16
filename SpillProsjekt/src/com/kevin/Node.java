@@ -1,12 +1,13 @@
 package com.kevin;
 
 public class Node {
-	private boolean disabled, goal, enabled;
+	private boolean disabled, goal, enabled, terminateMe;
 	private Node[] nodes= new Node[4];
 	private Node parent;
 	private int x, y;
 	public Node(boolean disabled, int x, int y)
 	{
+		terminateMe=false;
 		this.x=x;
 		this.y=y;
 		parent = this;
@@ -32,7 +33,7 @@ public class Node {
 	}
 	public String toString()
 	{
-		return "OK";
+		return enabled + " ok " + disabled + x + " " + y;
 	}
 	public void setGoal()
 	{
@@ -55,7 +56,7 @@ public class Node {
 	}
 	public void setEnabled(Node parent)
 	{
-		if(parent==this)
+		if(this.parent==this)
 			this.parent = parent;
 		enabled=true;
 	}
@@ -63,9 +64,18 @@ public class Node {
 	{
 		return parent;
 	}
+	public boolean terminate()
+	{
+		return terminateMe;
+	}
 	public void setEnabled()
 	{
 		enabled=true;
+	}
+	public void setEnabled(boolean term)
+	{
+		enabled=true;
+		terminateMe=term;
 	}
 	
 }

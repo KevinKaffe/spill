@@ -2,22 +2,28 @@ package com.kevin;
 
 import java.awt.Image;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import javax.swing.ImageIcon;
 
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+
 public class Player {
 	
 	private int fireLevel;
-	private boolean[] keysDown ={false,false,false,false};//For � ikke f� delay n�r man f�rst g�r en vei s� snur
+	protected boolean[] keysDown ={false,false,false,false};//For � ikke f� delay n�r man f�rst g�r en vei s� snur
 	protected int x, y,hp,maxBombs,id,invincibility;
 	private boolean dead;
 	protected int lowerTileX; // spillers posisjon på "map"
 	protected int lowerTileY;
 	protected int upperTileX;
 	protected int upperTileY;
+	protected int avgTileX; // Forbannade tiles... Ka e det neste? Posisjon i det komplekse planet?
+	protected int avgTileY;
 	protected double velX, velY;
 	protected double speed;
 	private boolean isDead = false;
@@ -31,6 +37,8 @@ public class Player {
 	public static final int adjustY = -10;
 	private String[] sprites;
 	private int localTicker;
+	private boolean freePassage;
+	private int passageX, passageY;
 	private int walkState; //For � vite hvilken side man skal se han fra
 	private int spriteState; //For animasjoner
 	private final int invincibilityCoolDownForAASjekkeOmSpillerenEndaKanDoEllerOmHanFortsattIkkeSkalMisteLivNaarHanBlirTruffetAvEnFlamme_DenneCooldownSkalVearePaaRundt100MS=110;
@@ -40,6 +48,9 @@ public class Player {
 	private Character character;
 	public Player(Board board, PlayerType type, int id)
 	{
+		freePassage=false;
+		passageX=-1;
+		passageY=-1;
 		superPower=600;
 		dead =false;
 		this.id=id;
@@ -126,6 +137,15 @@ public class Player {
 	{
 		return upperTileY;
 	}
+	public int getAvgTileX()
+	{
+		return Math.round((getX()+spriteWidth/2)/36);
+		
+	}
+	public int getAvgTileY()
+	{
+		return Math.round((getY()-trueImage.getHeight(parent)/6)/36)+1;
+	}
 	public Image getImage()
 	{
 		return image;
@@ -169,7 +189,7 @@ public class Player {
 			}
 			else if (key == KeyEvent.VK_Z)
 			{
-				if (bombs.size()<maxBombs)
+				if (bombs.size()<maxBombs && !parent.isBomb(getAvgTileX(), getAvgTileY()))
 				{
 		
 
@@ -178,7 +198,7 @@ public class Player {
 					/*bombs.add(new Bomb("bomb.png",Math.round((getX()+spriteWidth)/36)*36,Math.round((getY()+30)/36)*36, this, 
 							Math.round((getX()+spriteWidth)/36), Math.round((getY()+30)/36)));
 */
-					if (parent.isBoulder(getTileX(), getTileY()) || parent.isBox(getTileX(), getTileY()))
+					/*if (parent.isBoulder(getTileX(), getTileY()) || parent.isBox(getTileX(), getTileY()))
 					{
 						if (keysDown[1])
 						{
@@ -192,10 +212,20 @@ public class Player {
 						}
 					}
 					else
-					{
-						bombs.add(new Bomb("bomb.png", getTileX()*36+ adjustX, getTileY()*36 + adjustY, this, 
-								getTileX(), getTileY()));
+					{*/
+					try {
+						  AePlayWave aw = new AePlayWave( "blop.wav" );
+					       aw.start();     
 					}
+					catch (Exception ez) {
+					    System.out.println("f");
+					}
+					freePassage=true;
+					passageX=getAvgTileX();
+					passageY=getAvgTileY();
+						bombs.add(new Bomb("bomb.png", getAvgTileX()*36+ adjustX, getAvgTileY()*36 + adjustY, this, 
+								getAvgTileX(), getAvgTileY()));
+					//}
 					
 //>>>>>>> branch 'master' of https://github.com/KevinKaffe/spill
 					//parent.setTile((bomb.getX()+7)/36, (bomb.getY()+10)/36,new Boulder("boulder.png", bomb.getX()+7, bomb.getY()+10));
@@ -243,8 +273,8 @@ public class Player {
 				if (bombs.size()<maxBombs && !parent.isTrumpWall(Math.round(getX()/36),Math.round(getY()/36)+1))
 				{
 		
-					bombs.add(new Bomb("bomb.png", getTileX()*36+ adjustX, getTileY()*36 + adjustY, this, 
-							getTileX(), getTileY()));
+					bombs.add(new Bomb("bomb.png", getAvgTileX()*36+ adjustX, getAvgTileY()*36 + adjustY, this, 
+							getAvgTileX(), getAvgTileY()));
 					//parent.setTile((bomb.getX()+7)/36, (bomb.getY()+10)/36,new Boulder("boulder.png", bomb.getX()+7, bomb.getY()+10));
 					//System.out.println("X: " + bomb.getTileX() + "  Y: " + bomb.getTileY());
 					//Må justere for å plassere midt på en tile, samtidig som vi må matche med parent.map
@@ -328,7 +358,7 @@ public class Player {
 		if(!bomb_removal_queue.isEmpty())
 			bomb_removal_queue = new ArrayList<>();
 		
-		if (!(this instanceof NPC))
+		if (true)//!(this instanceof NPC))
 		{
 		if(keysDown[0] || keysDown[1]||keysDown[2]||keysDown[3])
 		{
@@ -381,7 +411,7 @@ public class Player {
 			y -= velY;
 		}
 		//spiller kan ikke gå på "boulder" på brettet 
-		if (parent.isBoulder(lowerTileX, lowerTileY) || parent.isBoulder(upperTileX, lowerTileY)||parent.isBoulder(upperTileX, upperTileY) || parent.isBoulder(lowerTileX, upperTileY))
+		/*if (parent.isBoulder(lowerTileX, lowerTileY) || parent.isBoulder(upperTileX, lowerTileY)||parent.isBoulder(upperTileX, upperTileY) || parent.isBoulder(lowerTileX, upperTileY))
 		{
 			x -= velX;
 			y -= velY;
@@ -395,8 +425,26 @@ public class Player {
 		{
 			x -= velX;
 			y -= velY;
+		}*/
+		if(!(passageX==getAvgTileX() && passageY==getAvgTileY()))
+		{
+			passageX=-1;
+			passageY=-1;
+			//if(parent.isBomb(lowerTileX, lowerTileY) || parent.isBomb(upperTileX, lowerTileY)||parent.isBomb(upperTileX, upperTileY) || parent.isBomb(lowerTileX, upperTileY))
+			if(parent.isBomb(getAvgTileX(), getAvgTileY()))
+			{
+
+					x-=velX;
+					y-=velY;
+					while(parent.isBomb(getAvgTileX(), getAvgTileY()))
+					{
+						x-=velX;
+						y-=velY;
+					}
+
+			}
 		}
-		
+
 	}
 
 	

@@ -1,7 +1,22 @@
 package com.kevin;
 
+import java.applet.AudioClip;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 
 public class Bomb extends Tile {
 
@@ -25,7 +40,7 @@ public class Bomb extends Tile {
 	@Override
 	public void tick()
 	{
-		System.out.println(delay);
+
 		destroy();
 		delay--;
 	}
@@ -34,6 +49,13 @@ public class Bomb extends Tile {
 	{
 		if (delay <= 0)
 		{
+			try {
+				  AePlayWave aw = new AePlayWave( "explosion.wav" );
+			       aw.start();     
+			}
+			catch (Exception ez) {
+			    System.out.println("f");
+			}
 			global_bomb_list.remove(this);
 			delay = waitDestruction;
 			player.explotion(getX(), getY(), getTileX(), getTileY());
