@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -32,6 +33,9 @@ public class Board extends JPanel implements ActionListener {
     private List<Player> players;
     private List<List<Tile>> map;
     private static Board staticBoard;
+    private static List<Powerup> powerupTable;
+    private static List<Double> probableTable;
+    private List<Powerup> powerupBoard = new ArrayList<>();
     private String[] TrumpSprites = {"TrumpSprites/Front/0.png",
     		"TrumpSprites/Front/1.png",
     		"TrumpSprites/Front/0.png",
@@ -87,6 +91,43 @@ public class Board extends JPanel implements ActionListener {
         UI = new UserInterface(720-36,0);
         
 
+    }
+    public void setPowerupTables()
+    {
+    	String[] sprites=new String[]{"SpeedUp/0.png", "SpeedUp/1.png", "SpeedUp/2.png", "SpeedUp/3.png", "SpeedUp/4.png", "SpeedUp/5.png"};
+    	Powerup speedUp = new Powerup(sprites, Effect.SpeedUp);
+    	sprites= new String[]{"SpeedDown/0.png", "SpeedDown/1.png", "SpeedDown/2.png", "SpeedDown/3.png", "SpeedDown/4.png", "SpeedDown/5.png"};
+    	Powerup speedDown = new Powerup(sprites, Effect.SpeedDown);
+    	sprites=new String[]{"SpeedMax/0.png", "SpeedMax/1.png", "SpeedMax/2.png", "SpeedMax/3.png", "SpeedMax/4.png", "SpeedMax/5.png"};
+    	Powerup speedMax = new Powerup(sprites, Effect.SpeedMax);
+    	sprites= new String[]{"SpeedMin/0.png", "SpeedMin/1.png", "SpeedMin/2.png", "SpeedMin/3.png", "SpeedMin/4.png", "SpeedMin/5.png"};
+    	Powerup speedMin = new Powerup(sprites, Effect.SpeedMin);
+    	
+    	sprites=new String[]{"FireUp/0.png", "FireUp/1.png", "FireUp/2.png", "FireUp/3.png", "FireUp/4.png", "FireUp/5.png"};
+    	Powerup fireUp = new Powerup(sprites, Effect.FireUp);
+    	sprites= new String[]{"FireDown/0.png", "FireDown/1.png", "FireDown/2.png", "FireDown/3.png", "FireDown/4.png", "FireDown/5.png"};
+    	Powerup fireDown = new Powerup(sprites, Effect.FireDown);
+    	sprites=new String[]{"FireMax/0.png", "FireMax/1.png", "FireMax/2.png", "FireMax/3.png", "FireMax/4.png", "FireMax/5.png"};
+    	Powerup fireMax = new Powerup(sprites, Effect.FireMax);
+    	sprites= new String[]{"FireMin/0.png", "FireMin/1.png", "FireMin/2.png", "FireMin/3.png", "FireMin/4.png", "FireMin/5.png"};
+    	Powerup fireMin = new Powerup(sprites, Effect.FireMin);
+    	
+    	sprites=new String[]{"bombUp/0.png", "bombUp/1.png", "bombUp/2.png", "bombUp/3.png", "bombUp/4.png", "bombUp/5.png"};
+    	Powerup bombUp = new Powerup(sprites, Effect.BombUp);
+    	sprites= new String[]{"bombDown/0.png", "bombDown/1.png", "bombDown/2.png", "bombDown/3.png", "bombDown/4.png", "bombDown/5.png"};
+    	Powerup bombDown = new Powerup(sprites, Effect.BombDown);
+    	sprites=new String[]{"bombMax/0.png", "bombMax/1.png", "bombMax/2.png", "bombMax/3.png", "bombMax/4.png", "bombMax/5.png"};
+    	Powerup bombMax = new Powerup(sprites, Effect.BombMax);
+    	sprites= new String[]{"bombMin/0.png", "bombMin/1.png", "bombMin/2.png", "bombMin/3.png", "bombMin/4.png", "bombMin/5.png"};
+    	Powerup bombMin = new Powerup(sprites, Effect.BombMin);
+    	
+    	sprites=new String[]{"bombPass/0.png", "bombPass/1.png", "bombPass/2.png", "bombPass/3.png", "bombPass/4.png", "bombPass/5.png"};
+    	Powerup bombPass = new Powerup(sprites, Effect.BombPass);
+    	sprites= new String[]{"softPass/0.png", "softPass/1.png", "softPass/2.png", "softPass/3.png", "softPass/4.png", "softPass/5.png"};
+    	Powerup softPass = new Powerup(sprites, Effect.SoftPass);
+    	
+    	powerupTable= Arrays.asList(speedUp, speedDown, speedMax, speedMin, fireUp, fireDown, fireMax, fireMin, bombUp, bombDown, bombMax, bombMin, bombPass, softPass);
+    	probableTable= Arrays.asList(20.0  , 10.0     , 5.0     , 5.0     , 20.0  , 10.0    , 5.0    , 5.0    , 20.0  ,10.0     , 5.0    ,5.0     , 5.0     ,5.0);
     }
     public void initMenu()
     {
@@ -155,6 +196,14 @@ public class Board extends JPanel implements ActionListener {
         }
 
     }
+    public void addPowerup(Powerup p)
+    {
+    	powerupBoard.add(p);
+    }
+    public void removePowerup(Powerup p)
+    {
+    	powerupBoard.remove(p);
+    }
     public void setTile(int x, int y, Tile t)
     {
     	map.get(x).set(y, t);
@@ -205,6 +254,10 @@ public class Board extends JPanel implements ActionListener {
 	            	g2d.drawImage(tile.getImage(), tile.getX(), tile.getY(), this);
 	        	}
 	        }
+    		for(Powerup p: powerupBoard)
+    		{
+    			g2d.drawImage(p.getImage(), p.getX(), p.getY(), this);
+    		}
 	        for (Player current : players)
 	        {
 	        	 g2d.drawImage(current.getImage(), current.getX(), current.getY(), this);
@@ -310,12 +363,19 @@ public class Board extends JPanel implements ActionListener {
 	{
 		return isBoulder(posX, posY) || isBox(posX, posY) || isBomb(posX, posY);
 	}
-	
+    public static List<Powerup> getPowerupTable()
+    {
+    	return powerupTable;
+    }
     @Override
     public void actionPerformed(ActionEvent e) {
        
     	if (state == State.GAME && !pause)
     	{
+    		for(Powerup p: powerupBoard)
+    		{
+    			p.tick();
+    		}
     		for(List<Tile> line:map)
             {
             	for(Tile tile:line)
@@ -455,7 +515,8 @@ public class Board extends JPanel implements ActionListener {
         	}
     		else
     		{
-    			players.get(0).setImage(new ImageIcon("hillaryHead.png"));
+    			//players.get(0).setImage(new ImageIcon("hillaryHead.png"));
+    			players.get(0).setSprites(HillarySprites,Character.Hillary);
     		}
     	}
     	else
@@ -483,7 +544,7 @@ public class Board extends JPanel implements ActionListener {
     		if (npc.getId() == 2)
     		{
     			npc.setImage(new ImageIcon("player.png"));
-    			npc.setSprites(TrumpSprites, Character.Trump);
+    			npc.setSprites(HillarySprites, Character.Hillary);
     		}
     		else if (npc.getId() == 3)
     		{
