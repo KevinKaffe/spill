@@ -37,7 +37,6 @@ public class Player {
 	public static final int adjustY = -10;
 	private String[] sprites;
 	private int localTicker;
-	private boolean freePassage;
 	private int passageX, passageY;
 	private int walkState; //For � vite hvilken side man skal se han fra
 	private int spriteState; //For animasjoner
@@ -48,7 +47,6 @@ public class Player {
 	private Character character;
 	public Player(Board board, PlayerType type, int id)
 	{
-		freePassage=false;
 		passageX=-1;
 		passageY=-1;
 		superPower=600;
@@ -220,7 +218,6 @@ public class Player {
 					catch (Exception ez) {
 					    System.out.println("f");
 					}
-					freePassage=true;
 					passageX=getAvgTileX();
 					passageY=getAvgTileY();
 						bombs.add(new Bomb("bomb.png", getAvgTileX()*36+ adjustX, getAvgTileY()*36 + adjustY, this, 
@@ -294,6 +291,7 @@ public class Player {
 				System.out.println(superPower);
 				Board.get_ui().getElements().get(id).getIcons().get(2).updateWidth(superPower/6);
 			}
+			break;
 		}
 	}
 	public void setSprites(String[] sprites, Character character)
@@ -362,7 +360,7 @@ public class Player {
 		{
 		if(keysDown[0] || keysDown[1]||keysDown[2]||keysDown[3])
 		{
-			if(localTicker%6 ==0)
+			if(localTicker%(24/speed) ==0)
 				spriteState++;
 			if(keysDown[0])
 				walkState=0;
@@ -411,21 +409,25 @@ public class Player {
 			y -= velY;
 		}
 		//spiller kan ikke gå på "boulder" på brettet 
-		/*if (parent.isBoulder(lowerTileX, lowerTileY) || parent.isBoulder(upperTileX, lowerTileY)||parent.isBoulder(upperTileX, upperTileY) || parent.isBoulder(lowerTileX, upperTileY))
+		if(!(this instanceof NPC))
 		{
-			x -= velX;
-			y -= velY;
+			if (parent.isBoulder(lowerTileX, lowerTileY) || parent.isBoulder(upperTileX, lowerTileY)||parent.isBoulder(upperTileX, upperTileY) || parent.isBoulder(lowerTileX, upperTileY))
+			{
+				x -= velX;
+				y -= velY;
+			}
+			else if (parent.isBox(lowerTileX, lowerTileY) || parent.isBox(upperTileX, lowerTileY)||parent.isBox(upperTileX, upperTileY) || parent.isBox(lowerTileX, upperTileY))
+			{
+				x -= velX;
+				y -= velY;
+			}
+			else if (character!=Character.Trump &&(parent.isTrumpWall(lowerTileX, lowerTileY) || parent.isTrumpWall(upperTileX, lowerTileY)||parent.isTrumpWall(upperTileX, upperTileY) || parent.isTrumpWall(lowerTileX, upperTileY)))
+			{
+				x -= velX;
+				y -= velY;
+			}
 		}
-		else if (parent.isBox(lowerTileX, lowerTileY) || parent.isBox(upperTileX, lowerTileY)||parent.isBox(upperTileX, upperTileY) || parent.isBox(lowerTileX, upperTileY))
-		{
-			x -= velX;
-			y -= velY;
-		}
-		else if (character!=Character.Trump &&(parent.isTrumpWall(lowerTileX, lowerTileY) || parent.isTrumpWall(upperTileX, lowerTileY)||parent.isTrumpWall(upperTileX, upperTileY) || parent.isTrumpWall(lowerTileX, upperTileY)))
-		{
-			x -= velX;
-			y -= velY;
-		}*/
+
 		if(!(passageX==getAvgTileX() && passageY==getAvgTileY()))
 		{
 			passageX=-1;
