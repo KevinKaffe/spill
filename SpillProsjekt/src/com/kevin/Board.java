@@ -267,6 +267,17 @@ public class Board extends JPanel implements ActionListener {
 	{
 		return (map.get(posX).get(posY) instanceof Boulder);
 	}
+	public boolean isPlayer(int posX, int posY, Player player)
+	{
+		for(Player p:players)
+		{
+			if(p.getAvgTileX()==posX && p.getAvgTileY()==posY && player!=p)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 	public boolean isTrumpWall(int posX, int posY)
 	{
 		return (map.get(posX).get(posY) instanceof TrumpWall);

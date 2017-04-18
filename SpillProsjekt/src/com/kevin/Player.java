@@ -189,7 +189,7 @@ public class Player {
 			}
 			else if (key == KeyEvent.VK_Z)
 			{
-				if (bombs.size()<maxBombs && !parent.isBomb(getAvgTileX(), getAvgTileY()))
+				if (bombs.size()<maxBombs && !parent.isBomb(getAvgTileX(), getAvgTileY()) && !parent.isPlayer(getAvgTileX(), getAvgTileY(), this))
 				{
 		
 
@@ -438,6 +438,10 @@ public class Player {
 					y-=velY;
 					while(parent.isBomb(getAvgTileX(), getAvgTileY()))
 					{
+						if(Math.abs(velX)+Math.abs(velY)==0)
+						{
+							x--;
+						}
 						x-=velX;
 						y-=velY;
 					}
@@ -447,7 +451,73 @@ public class Player {
 
 	}
 
-	
+	public boolean tileIsSafe(int tileX, int tileY)
+	{
+		for(Bomb bomb: Bomb.getBombList())
+		{
+			if(bomb.getTileY() ==tileY  && Math.abs(bomb.getTileX()-tileX)<6)
+			{
+				boolean walled=false;
+				if(tileX>bomb.getTileX())
+				{
+					for(int i = bomb.getTileX(); i<tileX; i++)
+					{
+						if(Board.getStaticBoard().isObstractle(i, tileY) && !Board.getStaticBoard().isBomb(i, tileY))
+						{
+							walled=true;
+							break;
+						}
+					}
+				}
+				else
+				{
+					for(int i = tileX; i<bomb.getTileX(); i++)
+					{
+						if(Board.getStaticBoard().isObstractle(i, tileY) && !Board.getStaticBoard().isBomb(i, tileY))
+						{
+							walled=true;
+							break;
+						}
+					}
+				}
+				if(!walled)
+				{
+					return false;
+				}
+			}
+			else if(bomb.getTileX() == tileX &&Math.abs(bomb.getTileY()-tileY)<6)
+			{
+				boolean walled=false;
+				if(tileY>bomb.getTileY())
+				{
+					for(int i = bomb.getTileY(); i<tileY; i++)
+					{
+						if(Board.getStaticBoard().isObstractle(tileX, i) && !Board.getStaticBoard().isBomb(tileX, i))
+						{
+							walled=true;
+							break;
+						}
+					}
+				}
+				else
+				{
+					for(int i = tileY; i<bomb.getTileY(); i++)
+					{
+						if(Board.getStaticBoard().isObstractle(tileX, i) &&!Board.getStaticBoard().isBomb(tileX, i))
+						{
+							walled=true;
+							break;
+						}
+					}
+				}
+				if(!walled)
+				{
+					return false;
+				}
+			}
+		}
+		return true;
+	}
 	public void keyReleased(KeyEvent e)
 	{
 		int key = e.getKeyCode();

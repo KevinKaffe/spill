@@ -20,7 +20,7 @@ public class NPC extends Player{
 	private int preGameCap = 0;
 	private boolean madeDecision = false;
 	private int wait = 40; //tiden NPC venter mellom hvert valg
-	private int delay, checkDangerDelay, moveDelay; //For å optimalisere koden for maksimal effektivitet og minimal unødvendig bruk av ressurser
+	private int delay, checkDangerDelay, moveDelay; //For ï¿½ optimalisere koden for maksimal effektivitet og minimal unï¿½dvendig bruk av ressurser
 	private List<Pair> avoidDupes;
 	private int testX, testY;
 
@@ -89,13 +89,13 @@ public class NPC extends Player{
 		if(!path.isEmpty())
 		{
 			boolean[] flag={false, false};
-			if(path.get(path.size()-1).getX() -this.x> this.speed)
+			if(path.get(path.size()-1).getX() -this.x> this.speed*0.7)
 			{
 				keysDown[2]=true;
 				keysDown[1]=false;
 				velX=speed;
 			}
-			else if(path.get(path.size()-1).getX() -this.x< this.speed)
+			else if(path.get(path.size()-1).getX() -this.x< -this.speed*0.7)
 			{
 				keysDown[1]=true;
 				keysDown[2]=false;
@@ -108,13 +108,13 @@ public class NPC extends Player{
 				flag[0]=true;
 				velX=0;
 			}
-			if(path.get(path.size()-1).getY() -this.y> this.speed)
+			if(path.get(path.size()-1).getY() -this.y> this.speed*0.7)
 			{
 				keysDown[0]=true;
 				keysDown[3]=false;
 				velY=speed;
 			}
-			else if(path.get(path.size()-1).getY() -this.y< this.speed)
+			else if(path.get(path.size()-1).getY() -this.y< -this.speed*0.7)
 			{
 				keysDown[3]=true;
 				keysDown[0]=false;
@@ -160,76 +160,26 @@ public class NPC extends Player{
 		}		
 		delay--;
 	}
+	private boolean priOne()
+	{
+		return false;
+	}
+	private boolean priTwo()
+	{
+		return false;
+	}
+	private boolean priThree()
+	{
+		return false;
+	}
 	private void iSmart()
 	{
-		
-	}
-	private boolean tileIsSafe(int tileX, int tileY)
-	{
-		for(Bomb bomb: Bomb.getBombList())
-		{
-			if(bomb.getTileY() ==tileY  && Math.abs(bomb.getTileX()-tileX)<6)
-			{
-				boolean walled=false;
-				if(tileX>bomb.getTileX())
-				{
-					for(int i = bomb.getTileX(); i<tileX; i++)
-					{
-						if(Board.getStaticBoard().isObstractle(i, tileY) && !Board.getStaticBoard().isBomb(i, tileY))
-						{
-							walled=true;
-							break;
-						}
-					}
-				}
-				else
-				{
-					for(int i = tileX; i<bomb.getTileX(); i++)
-					{
-						if(Board.getStaticBoard().isObstractle(i, tileY) &&! Board.getStaticBoard().isBomb(i, tileY))
-						{
-							walled=true;
-							break;
-						}
-					}
-				}
-				if(!walled)
-				{
-					return false;
-				}
-			}
-			else if(bomb.getTileX() == tileX &&Math.abs(bomb.getTileY()-tileY)<6)
-			{
-				boolean walled=false;
-				if(tileY>bomb.getTileY())
-				{
-					for(int i = bomb.getTileY(); i<tileY; i++)
-					{
-						if(Board.getStaticBoard().isObstractle(tileX, i) && !Board.getStaticBoard().isBomb(i, tileY))
-						{
-							walled=true;
-							break;
-						}
-					}
-				}
-				else
-				{
-					for(int i = tileY; i<bomb.getTileY(); i++)
-					{
-						if(Board.getStaticBoard().isObstractle(tileX, i) &&!Board.getStaticBoard().isBomb(i, tileY))
-						{
-							walled=true;
-							break;
-						}
-					}
-				}
-				if(!walled)
-				{
-					return false;
-				}
-			}
-		}
-		return true;
+		if(priOne())
+			return;
+		else if(priTwo())
+			return;
+		else if(priThree())
+			return;
 	}
 	private Pair getClosestSafeTile(int tileX, int tileY)
 	{

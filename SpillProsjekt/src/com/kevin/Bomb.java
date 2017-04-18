@@ -62,9 +62,16 @@ public class Bomb extends Tile {
 			player.destroyBomb(this);
 		}
 	}
+	
 	public void explodeMe()
 	{
 		delay=0;
+		destroy();
+	}
+	public void destructor()
+	{
+		global_bomb_list.remove(this);
+		player.destroyBomb(this);
 	}
 	public int getTileX()
 	{
