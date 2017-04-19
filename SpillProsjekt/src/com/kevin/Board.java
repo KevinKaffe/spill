@@ -81,7 +81,8 @@ public class Board extends JPanel implements ActionListener {
     	staticBoard = this;
     	initMenu();
     	initPlayers();
-
+    	setPowerupTables();
+    	
         addKeyListener(new TAdapter());
         setFocusable(true);
         setBackground(Color.BLACK);
@@ -126,8 +127,10 @@ public class Board extends JPanel implements ActionListener {
     	sprites= new String[]{"softPass/0.png", "softPass/1.png", "softPass/2.png", "softPass/3.png", "softPass/4.png", "softPass/5.png"};
     	Powerup softPass = new Powerup(sprites, Effect.SoftPass);
     	
-    	powerupTable= Arrays.asList(speedUp, speedDown, speedMax, speedMin, fireUp, fireDown, fireMax, fireMin, bombUp, bombDown, bombMax, bombMin, bombPass, softPass);
-    	probableTable= Arrays.asList(20.0  , 10.0     , 5.0     , 5.0     , 20.0  , 10.0    , 5.0    , 5.0    , 20.0  ,10.0     , 5.0    ,5.0     , 5.0     ,5.0);
+    	sprites=new String[]{"SpeedUp/0.png", "SpeedUp/1.png", "SpeedUp/2.png", "SpeedUp/3.png", "SpeedUp/4.png", "SpeedUp/5.png"};
+    	
+    	powerupTable= Arrays.asList(speedUp, speedDown, speedMax, speedMin, fireUp, fireDown, fireMax, fireMin, bombUp, bombDown, bombMax, bombMin, bombPass, softPass, null);
+    	probableTable= Arrays.asList(2000.0  , 10.0     , 5.0     , 5.0     , 20.0  , 10.0    , 5.0    , 5.0    , 20.0  ,10.0     , 5.0    ,5.0     , 5.0     ,5.0      , 50.0);
     }
     public void initMenu()
     {
@@ -367,6 +370,10 @@ public class Board extends JPanel implements ActionListener {
     {
     	return powerupTable;
     }
+    public static List<Double> getProbableTable()
+    {
+    	return probableTable;
+    }
     @Override
     public void actionPerformed(ActionEvent e) {
        
@@ -468,7 +475,9 @@ public class Board extends JPanel implements ActionListener {
 		   			}
 		   		}
 		   		if (isBox(fire.getTileX() + posOrNegX*i, fire.getTileY() + posOrNegY*i))
-		   		{  		
+		   		{
+		   			if(map.get(fire.getTileX()+posOrNegX*i).get(fire.getTileY()+posOrNegY*i) instanceof Box)
+		   				((Box)(map.get(fire.getTileX()+posOrNegX*i).get(fire.getTileY()+posOrNegY*i))).ripMe();
 		   			setTile(fire.getTileX() + posOrNegX*i, fire.getTileY() + posOrNegY*i,
 			   				new Tile("asfalt.jpg", fire.getX() - player.adjustX+2 + 36*i*posOrNegX,fire.getY() + i*36*posOrNegY - player.adjustY));
 		   			fire.setBoundry(i, index);

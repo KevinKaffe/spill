@@ -52,9 +52,9 @@ public class Player {
 		superPower=600;
 		dead =false;
 		this.id=id;
-		maxBombs=3;
+		maxBombs=1;
 		this.type=type;
-		fireLevel = 5;
+		fireLevel = 3;
 		parent = board;
 		ImageIcon ii;
 		if (type == PlayerType.Player1)
@@ -77,7 +77,7 @@ public class Player {
 		image = ii.getImage();
 
 		
-		hp = 200*3;
+		//hp = 200*3;
 		spriteState=0;
 		walkState=0;
 		localTicker=0;
@@ -86,7 +86,7 @@ public class Player {
 		//y = 4*36;
 		velX = 0;
 		velY = 0;
-		speed = 4.0;
+		speed = 2.0;
 		lowerTileX = Math.round(x/36);
 		upperTileX=Math.round((x+spriteWidth)/36);
 		lowerTileY = Math.round(y/36) + 1;

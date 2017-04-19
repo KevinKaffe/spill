@@ -6,7 +6,9 @@ import javax.swing.ImageIcon;
 
 public class Tile implements Cloneable{
 	private Image image;
-	private int x, y, priority;
+	protected int x;
+	protected int y;
+	private int priority;
 	public Tile(String imgSrc,int x,int y)
 	{
 		ImageIcon ii = new ImageIcon(imgSrc);
