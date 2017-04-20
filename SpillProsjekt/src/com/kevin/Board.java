@@ -93,11 +93,7 @@ public class Board extends JPanel implements ActionListener {
         
 
     }
-    
-    public List<Player> getPlayers()
-    {
-    	return players;
-    }
+
     public void setPowerupTables()
     {
     	String[] sprites=new String[]{"SpeedUp/0.png", "SpeedUp/1.png", "SpeedUp/2.png", "SpeedUp/3.png", "SpeedUp/4.png", "SpeedUp/5.png"};
@@ -135,7 +131,7 @@ public class Board extends JPanel implements ActionListener {
     	sprites=new String[]{"SpeedUp/0.png", "SpeedUp/1.png", "SpeedUp/2.png", "SpeedUp/3.png", "SpeedUp/4.png", "SpeedUp/5.png"};
     	
     	powerupTable= Arrays.asList(speedUp, speedDown, speedMax, speedMin, fireUp, fireDown, fireMax, fireMin, bombUp, bombDown, bombMax, bombMin, bombPass, softPass, null);
-    	probableTable= Arrays.asList(2000.0  , 2000.0     , 2000.0     , 2000.0     , 20.0  , 10.0    , 5.0    , 5.0    , 20.0  ,10.0     , 5.0    ,5.0     , 5.0     ,5.0      , 50.0);
+    	probableTable= Arrays.asList(2000.0  , 2000.0     , 2000.0     , 2000.0     , 10000.0  , 10.0    , 5.0    , 5.0    , 20.0  ,10.0     , 5.0    ,5.0     , 5.0     ,5.0      , 50.0);
     }
     public void initMenu()
     {
@@ -189,7 +185,7 @@ public class Board extends JPanel implements ActionListener {
         	 
         }
         
-        
+
         for (int i = 1; i < 19; i+= 3)
         {
         	for (int j = 1; j < 18; j += 3)
@@ -203,7 +199,7 @@ public class Board extends JPanel implements ActionListener {
         		}
         	}    
         }
-        
+
 
     }
     public List<Powerup> getPowerupBoard()
@@ -246,6 +242,9 @@ public class Board extends JPanel implements ActionListener {
     {
     	this.state = state;
     }
+    public List<Player> getPlayers() {
+		return players;
+	}
     private void doDrawing(Graphics g) {
     	
     	Graphics2D g2d = (Graphics2D) g;

@@ -14,8 +14,11 @@ import javafx.scene.media.MediaPlayer;
 
 public class Player {
 	
+
 	private static final double MAXSPEED=6, MINSPEED=1;
-	private static final int MAXBOMBS=6, MINBOMBS=1;
+
+	private static final int MAXBOMBS=6, MINBOMBS=1, MINFIRE=2, MAXFIRE=11;
+
 	protected int fireLevel;
 	protected boolean[] keysDown ={false,false,false,false};//For � ikke f� delay n�r man f�rst g�r en vei s� snur
 	protected int x, y,hp,maxBombs,id,invincibility;
@@ -24,8 +27,6 @@ public class Player {
 	protected int lowerTileY;
 	protected int upperTileX;
 	protected int upperTileY;
-	protected int avgTileX; // Forbannade tiles... Ka e det neste? Posisjon i det komplekse planet?
-	protected int avgTileY;
 	protected double velX, velY;
 	protected double speed;
 	private boolean isDead = false;
@@ -88,7 +89,7 @@ public class Player {
 		//y = 4*36;
 		velX = 0;
 		velY = 0;
-		speed = 4.0;
+		speed = 2;
 		lowerTileX = Math.round(x/36);
 		upperTileX=Math.round((x+spriteWidth)/36);
 		lowerTileY = Math.round(y/36) + 1;
@@ -333,12 +334,12 @@ public class Player {
 		switch(effect)
 		{
 		case SpeedUp:
-			speed+=0.5;
+			speed+=1;
 			if(speed>MAXSPEED)
 				speed=MAXSPEED;
 			break;
 		case SpeedDown:
-			speed-=0.5;
+			speed-=1;
 			if(speed<MINSPEED)
 				speed=MINSPEED;
 			break;
@@ -359,6 +360,23 @@ public class Player {
 			break;
 		case BombMin:
 			maxBombs=MINBOMBS;
+			break;
+		case FireUp:
+			fireLevel++;
+			if(fireLevel>MAXFIRE)
+				fireLevel=MAXFIRE;
+			break;
+		case FireDown:
+			fireLevel--;
+			if(fireLevel<MINFIRE)
+				fireLevel=MINFIRE;
+			break;
+		case FireMin:
+			fireLevel=MINFIRE;
+			break;
+		case FireMax:
+			fireLevel=MAXFIRE;
+			break;
 		}
 	}
 	public void tick()
@@ -448,26 +466,32 @@ public class Player {
 			y -= velY;
 		}
 		//spiller kan ikke gå på "boulder" på brettet 
-		if(!(this instanceof NPC))
+		boolean flag =false;
+		if(true)//!(this instanceof NPC))
 		{
-			if (parent.isBoulder(lowerTileX, lowerTileY) || parent.isBoulder(upperTileX, lowerTileY)||parent.isBoulder(upperTileX, upperTileY) || parent.isBoulder(lowerTileX, upperTileY))
+			//if (parent.isBoulder(lowerTileX, lowerTileY) || parent.isBoulder(upperTileX, lowerTileY)||parent.isBoulder(upperTileX, upperTileY) || parent.isBoulder(lowerTileX, upperTileY))
+			if(parent.isBoulder(getAvgTileX(), getAvgTileY()))
 			{
+				flag=true;
 				x -= velX;
 				y -= velY;
 			}
-			else if (parent.isBox(lowerTileX, lowerTileY) || parent.isBox(upperTileX, lowerTileY)||parent.isBox(upperTileX, upperTileY) || parent.isBox(lowerTileX, upperTileY))
+			//else if (parent.isBox(lowerTileX, lowerTileY) || parent.isBox(upperTileX, lowerTileY)||parent.isBox(upperTileX, upperTileY) || parent.isBox(lowerTileX, upperTileY))
+			else if(parent.isBox(getAvgTileX(), getAvgTileY()))
 			{
+				flag=true;
 				x -= velX;
 				y -= velY;
 			}
 			else if (character!=Character.Trump &&(parent.isTrumpWall(lowerTileX, lowerTileY) || parent.isTrumpWall(upperTileX, lowerTileY)||parent.isTrumpWall(upperTileX, upperTileY) || parent.isTrumpWall(lowerTileX, upperTileY)))
 			{
+				flag=true;
 				x -= velX;
 				y -= velY;
 			}
 		}
 
-		if(!(passageX==getAvgTileX() && passageY==getAvgTileY()))
+		if(!(passageX==getAvgTileX() && passageY==getAvgTileY()) && !flag)
 		{
 			passageX=-1;
 			passageY=-1;
@@ -499,7 +523,73 @@ public class Player {
 		}
 
 	}
-
+	public boolean tileIsSafe(int tileX, int tileY, int lookRange)
+	{
+		for(Bomb bomb: Bomb.getBombList())
+		{
+			if(bomb.getTileY() ==tileY  && Math.abs(bomb.getTileX()-tileX)<lookRange)
+			{
+				boolean walled=false;
+				if(tileX>bomb.getTileX())
+				{
+					for(int i = bomb.getTileX(); i<tileX; i++)
+					{
+						if(Board.getStaticBoard().isObstractle(i, tileY) && !Board.getStaticBoard().isBomb(i, tileY))
+						{
+							walled=true;
+							break;
+						}
+					}
+				}
+				else
+				{
+					for(int i = tileX; i<bomb.getTileX(); i++)
+					{
+						if(Board.getStaticBoard().isObstractle(i, tileY) && !Board.getStaticBoard().isBomb(i, tileY))
+						{
+							walled=true;
+							break;
+						}
+					}
+				}
+				if(!walled)
+				{
+					return false;
+				}
+			}
+			else if(bomb.getTileX() == tileX &&Math.abs(bomb.getTileY()-tileY)<6)
+			{
+				boolean walled=false;
+				if(tileY>bomb.getTileY())
+				{
+					for(int i = bomb.getTileY(); i<tileY; i++)
+					{
+						if(Board.getStaticBoard().isObstractle(tileX, i) && !Board.getStaticBoard().isBomb(tileX, i))
+						{
+							walled=true;
+							break;
+						}
+					}
+				}
+				else
+				{
+					for(int i = tileY; i<bomb.getTileY(); i++)
+					{
+						if(Board.getStaticBoard().isObstractle(tileX, i) &&!Board.getStaticBoard().isBomb(tileX, i))
+						{
+							walled=true;
+							break;
+						}
+					}
+				}
+				if(!walled)
+				{
+					return false;
+				}
+			}
+		}
+		return true;
+	}
 	public boolean tileIsSafe(int tileX, int tileY)
 	{
 		for(Bomb bomb: Bomb.getBombList())
