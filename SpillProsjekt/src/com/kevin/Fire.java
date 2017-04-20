@@ -7,7 +7,7 @@ public class Fire extends Tile {
 	
 	private Player player;
 	private int delay;
-	private final int waitDestruction = 40;
+	private final int waitDestruction = 25;
 	private int tileX;
 	private int tileY;
 	private int[] boundary = {100,100,100,100};
@@ -28,6 +28,10 @@ public class Fire extends Tile {
 	{
 		destroy();
 		delay--;
+	}
+	public static void removeFires()
+	{
+		global_fire_list = new ArrayList<>();
 	}
 	
 	private void destroy()

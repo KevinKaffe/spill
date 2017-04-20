@@ -44,7 +44,10 @@ public class Bomb extends Tile {
 		destroy();
 		delay--;
 	}
-	
+	public static void removeBombs()
+	{
+		global_bomb_list = new ArrayList<>();
+	}
 	private void destroy()
 	{
 		if (delay <= 0)

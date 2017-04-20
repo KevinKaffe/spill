@@ -2,6 +2,7 @@ package com.kevin;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.Stack;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -14,9 +15,10 @@ public class NPC extends Player{
 	private int lookRight;
 	private int lookLength = 4;
 	private Stack<Node> path= new Stack<>();
+	private Stack<Node> path2= new Stack<>();
 	private double lastVelX = 0;
 	private double lastVelY = 0;
-
+	private int tickTackToe=0;
 	private int decisionCount = 0;
 	private int preGameCap = 0;
 	private boolean madeDecision = false;
@@ -40,13 +42,18 @@ public class NPC extends Player{
 		lookRight = upperTileX + lookLength;
 		delay = wait;
 		moveDelay=0;
-		speed = 6.0;
+		speed = 2.0;
 	}
 	
 	
 	//Ting som må sjekkes real time
 	public void realTimeDecision()
 	{
+		if(getIsDead())
+		{
+			System.out.println("OKOK");
+			return;
+		}
 		lookLength = fireLevel;
 		//oppdaterer verdier
 		lookUp = lowerTileY - lookLength;
@@ -74,12 +81,15 @@ public class NPC extends Player{
 			validTileX=getUpperTileX();
 			validTileY=getTileY();
 		}*/
+		
 		if(!tileIsSafe(getAvgTileX(), getAvgTileY()) &&checkDangerDelay<=0 && path.isEmpty())
 		{
+		
 			gotoTile(getClosestSafeTile(getAvgTileX(), getAvgTileY()));
 			checkDangerDelay=20;
 			if(!path.isEmpty())
 				path.pop();
+			path2=new Stack();
 		}
 		checkDangerDelay--;
 		//stopper før han går inn i flamme
@@ -136,11 +146,32 @@ public class NPC extends Player{
 			{
 				path.pop();
 			}
+			if(prevX==x && prevY==y)
+			{
+				if(tickTackToe>=4)
+				{
+					path=new Stack();
+					checkDangerDelay=0;
+					tickTackToe=0;
+				}
+				else
+				{
+					tickTackToe++;
+				}
+			}
+			else
+			{
+				tickTackToe=0;
+			}
 			
+		}
+		else if(delay2<=0)
+		{
+			iSmart();
 		}
 		else
 		{
-			iSmart();
+			delay2--;
 		}
 		/*if(!path.isEmpty()&&moveDelay<=0)
 		{
@@ -211,27 +242,87 @@ public class NPC extends Player{
 		delay2--;
 		if(priOne())
 		{
+			path2=new Stack();
+			if (parent.isPlayer(getAvgTileX(), getAvgTileY(), this))
+			{
+				Random r = new Random();
+				int dx = r.nextInt()%3 -1;
+				int dy= r.nextInt()%3 -1;
+				path2.add(new Node(false,x+36*dx,y+36*dy));
+			}
 			//legge ned bombe
 			if (bombs.size()<maxBombs && !parent.isBomb(getAvgTileX(), getAvgTileY()) && !parent.isPlayer(getAvgTileX(), getAvgTileY(), this))
 			{
 				bombs.add(new Bomb("bomb.png", getAvgTileX()*36+ adjustX, getAvgTileY()*36 + adjustY, this, 
 						getAvgTileX(), getAvgTileY()));
+				delay2 = 110;
 			}
 		}
 			
 		else if(priTwo())
 		{
+			path2=new Stack();
 			if (bombs.size()<maxBombs && !parent.isBomb(getAvgTileX(), getAvgTileY()) && !parent.isPlayer(getAvgTileX(), getAvgTileY(), this))
 			{
 				bombs.add(new Bomb("bomb.png", getAvgTileX()*36+ adjustX, getAvgTileY()*36 + adjustY, this, 
 						getAvgTileX(), getAvgTileY()));
+				delay2 = 110;
 			}
 		}
+		if(!path2.isEmpty())
+		{
+			boolean[] flag={false, false};
+			if(path2.get(path2.size()-1).getX() -this.x> this.speed*0.7)
+			{
+				keysDown[2]=true;
+				keysDown[1]=false;
+				velX=speed;
+			}
+			else if(path2.get(path2.size()-1).getX() -this.x< -this.speed*0.7)
+			{
+				keysDown[1]=true;
+				keysDown[2]=false;
+				velX=-speed;
+			}
+			else
+			{
+				keysDown[2]=false;
+				keysDown[1]=false;
+				flag[0]=true;
+				velX=0;
+			}
+			if(path2.get(path2.size()-1).getY() -this.y> this.speed*0.7)
+			{
+				keysDown[0]=true;
+				keysDown[3]=false;
+				velY=speed;
+			}
+			else if(path2.get(path2.size()-1).getY() -this.y< -this.speed*0.7)
+			{
+				keysDown[3]=true;
+				keysDown[0]=false;
+				velY=-speed;
+			}
+			else
+			{
+				keysDown[3]=false;
+				keysDown[0]=false;
+				flag[1]=true;
+				velY=0;
+			}
 			
+			if(flag[0] && flag[1])
+			{
+				path2.pop();
+			}
+		}
 		else if (delay2 <= 0)
 		{
-			delay2 = wait;
-			randomNumber = ThreadLocalRandom.current().nextInt(0, 4);
+			//delay2 = 30;
+			
+			gotoTile2(getClosestBox(getAvgTileX(), getAvgTileY()));
+			
+			/*randomNumber = ThreadLocalRandom.current().nextInt(0, 4);
 			if (randomNumber == 0)
 			{
 				velX = 0; 
@@ -251,7 +342,7 @@ public class NPC extends Player{
 			{
 				velY = speed;
 				velX = 0;
-			}
+			}*/
 		}
 	}
 	private Pair getClosestSafeTile(int tileX, int tileY)
@@ -263,13 +354,60 @@ public class NPC extends Player{
 		}
 		//tileX-=1;
 		//tileY-=1;
-		System.out.println(tileX+"... "+tileY);
+		
 		avoidDupes.add(new Pair(tileX, tileY));
 		Pair left=recursiveSearch(tileX-1, tileY);
 		Pair up = recursiveSearch(tileX, tileY-1);
 		Pair right = recursiveSearch(tileX+1, tileY);
 		Pair down = recursiveSearch(tileX, tileY+1);
 		return minPair(minPair(left,right),minPair(up,down));
+	}
+	private Pair getClosestBox(int tileX, int tileY)
+	{
+		avoidDupes=new ArrayList<>();
+		if(parent.isBox(tileX, tileY))
+		{
+			return new Pair(tileX, tileY);
+		}
+		//tileX-=1;
+		//tileY-=1;
+
+		
+		avoidDupes.add(new Pair(tileX, tileY));
+		Pair left=recursiveSearch2(tileX-1, tileY);
+		Pair up = recursiveSearch2(tileX, tileY-1);
+		Pair right = recursiveSearch2(tileX+1, tileY);
+		Pair down = recursiveSearch2(tileX, tileY+1);
+		return minPair(minPair(left,right),minPair(up,down));
+	}
+	private Pair recursiveSearch2(int tileX, int tileY)
+	{
+		if(tileX>18 || tileX<0 || tileY<0 || tileY>18)
+		{
+			return new Pair(-2,-2);
+		}
+		for(Pair p: avoidDupes)
+		{
+			if(p.getFirst()==tileX && p.getSecond() ==tileY)
+			{
+				return new Pair(-6,-6);
+			}
+		}
+		if(Board.getStaticBoard().isObstractle(tileX, tileY) && !parent.isBox(tileX,  tileY))
+		{
+			return new Pair(-4,-4);
+		}
+		if(parent.isBox(tileX, tileY))
+		{
+			return new Pair(tileX, tileY);
+		}
+		avoidDupes.add(new Pair(tileX,tileY));
+		Pair left=recursiveSearch2(tileX-1, tileY);
+		Pair up = recursiveSearch2(tileX, tileY-1);
+		Pair right = recursiveSearch2(tileX+1, tileY);
+		Pair down = recursiveSearch2(tileX, tileY+1);
+		return minPair(minPair(left,right),minPair(up,down)).addCall();
+		
 	}
 	//Funksjon som finner en vei til en tile. Ukjent hva den vil gjøre dersom det ikke finnes en vei
 	// AKA Throw new IllegalRIPGameException();
@@ -287,7 +425,7 @@ public class NPC extends Player{
 			temp= new ArrayList<>();
 			for (int j =0; j<19;j++)
 			{
-				temp.add(new Node(Board.getStaticBoard().isObstractle(i, j), i*36, j*36));
+				temp.add(new Node(Board.getStaticBoard().isObstractle(i, j) && (i!=getAvgTileX() && j!=getAvgTileY()), i*36, j*36));
 			}
 			nodeMap.add(temp);
 		}
@@ -365,6 +503,126 @@ public class NPC extends Player{
 		/*x=p.getFirst()*36;
 		y=p.getSecond()*36;*/
 		
+	}
+	private void gotoTile2(Pair p)
+	{
+		if(p.getFirst()<0)
+		{
+			return;
+		}
+		Node dummy = new Node(false, -1, -1);
+		List<Node> temp;
+		List<List<Node>> nodeMap = new ArrayList<>();
+		for(int i =0; i < 19;i++)
+		{
+			temp= new ArrayList<>();
+			for (int j =0; j<19;j++)
+			{
+				temp.add(new Node(Board.getStaticBoard().isObstractle(i, j) && !parent.isBox(i, j), i*36, j*36));
+			}
+			nodeMap.add(temp);
+		}
+		for(int i =0; i < 19;i++)
+		{
+			for (int j =0; j<19;j++)
+			{
+				//System.out.println(nodeMap.get(i).get(j));
+				if(i==0)
+				{
+					if(j==0)
+					{
+						nodeMap.get(i).get(j).setRelations(dummy, dummy, nodeMap.get(i+1).get(j), nodeMap.get(i).get(j+1));
+					}
+					else if(j==18)
+					{
+						nodeMap.get(i).get(j).setRelations(dummy, nodeMap.get(i).get(j-1), nodeMap.get(i+1).get(j), dummy);
+					}
+					else
+					{
+						nodeMap.get(i).get(j).setRelations(dummy, nodeMap.get(i).get(j-1), nodeMap.get(i+1).get(j),  nodeMap.get(i).get(j+1));
+					}
+				}
+				else if(i==18)
+				{
+					if(j==0)
+					{
+						nodeMap.get(i).get(j).setRelations(nodeMap.get(i-1).get(j), dummy, dummy, nodeMap.get(i).get(j+1));
+					}
+					else if(j==18)
+					{
+						nodeMap.get(i).get(j).setRelations(nodeMap.get(i-1).get(j), nodeMap.get(i).get(j-1), dummy, dummy);
+					}
+					else
+					{
+						nodeMap.get(i).get(j).setRelations(nodeMap.get(i-1).get(j), nodeMap.get(i).get(j-1), dummy,  nodeMap.get(i).get(j+1));
+					}
+				}
+				else
+				{
+					if(j==0)
+					{
+						nodeMap.get(i).get(j).setRelations(nodeMap.get(i-1).get(j), dummy, nodeMap.get(i+1).get(j), nodeMap.get(i).get(j+1));
+					}
+					else if(j==18)
+					{
+						nodeMap.get(i).get(j).setRelations(nodeMap.get(i-1).get(j), nodeMap.get(i).get(j-1), nodeMap.get(i+1).get(j), dummy);
+					}
+					else
+					{
+						nodeMap.get(i).get(j).setRelations(nodeMap.get(i-1).get(j), nodeMap.get(i).get(j-1), nodeMap.get(i+1).get(j),  nodeMap.get(i).get(j+1));
+					}
+				}
+			}
+			
+		}
+		nodeMap.get(getAvgTileX()).get(getAvgTileY()).setEnabled(true);
+		nodeMap.get(p.getFirst()).get(p.getSecond()).setGoal();
+		path2=new Stack<>();
+		for(int i =0; i < 19*19; i++)
+		{
+			for(List<Node> nodeList : nodeMap)
+			{
+				for(Node node:nodeList)
+				{
+					//System.out.println("AAA"+node);
+					if(node.tick())
+					{
+						walkThePath2(node);
+						return;
+					}
+				}
+			}
+		}
+		/*x=p.getFirst()*36;
+		y=p.getSecond()*36;*/
+		
+	}
+	private void walkThePath2(Node node)
+	{
+		path2.push(node);
+		if(!node.terminate())
+		{
+			walkThePath(node.getParent());
+		}
+		/*while(x!=node.getX() && y!=node.getY())
+		{
+			if(x<node.getX())
+			{
+				x++;
+			}
+			else if(x!=node.getX())
+			{
+				x--;
+			}
+			if(y<node.getY())
+			{
+				y++;
+			}
+			else if(y!=node.getY())
+			{
+				y--;
+			}
+		}*/
 	}
 	private void walkThePath(Node node)
 	{

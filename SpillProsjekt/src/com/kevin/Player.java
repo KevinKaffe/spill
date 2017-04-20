@@ -15,7 +15,7 @@ import javafx.scene.media.MediaPlayer;
 public class Player {
 	
 
-	private static final double MAXSPEED=6, MINSPEED=1;
+	private static final double MAXSPEED=4, MINSPEED=1;
 
 	private static final int MAXBOMBS=6, MINBOMBS=1, MINFIRE=2, MAXFIRE=11;
 
@@ -27,6 +27,7 @@ public class Player {
 	protected int lowerTileY;
 	protected int upperTileX;
 	protected int upperTileY;
+	protected double prevX, prevY;
 	protected double velX, velY;
 	protected double speed;
 	private boolean isDead = false;
@@ -60,21 +61,28 @@ public class Player {
 		fireLevel = 3;
 		parent = board;
 		ImageIcon ii;
-		if (type == PlayerType.Player1)
+		ii = new ImageIcon("player.png");
+		if (id == 1)
 		{
 			ii = new ImageIcon("player.png");
 			x = 2*36;
 			y = 2*36;
 		}
-		else if (type == PlayerType.AI){
+		else if (id == 2){
 			ii = new ImageIcon("player.png");
 			x = 16*36;
 			y = 16*36;
 		}
-		else{
+		else if(id==3){
 			ii = new ImageIcon("player.png");
-			x = 14*36;
-			y = 4*36;
+			x = 2*36;
+			y = 16*36;
+		}
+		else if(id==4)
+		{
+			ii = new ImageIcon("player.png");
+			x=16*36;
+			y=2*36;
 		}
 		trueImage=ii.getImage();
 		image = ii.getImage();
@@ -108,7 +116,7 @@ public class Player {
 	}
 	public boolean getIsDead()
 	{
-		return isDead;
+		return dead;
 	}
 	public int getFireLevel()
 	{
@@ -192,7 +200,7 @@ public class Player {
 				keysDown[0]=true;
 				velY = speed;
 			}
-			else if (key == KeyEvent.VK_Z)
+			else if (key == KeyEvent.VK_SHIFT)
 			{
 				if (bombs.size()<maxBombs && !parent.isBomb(getAvgTileX(), getAvgTileY()) && !parent.isPlayer(getAvgTileX(), getAvgTileY(), this))
 				{
@@ -223,7 +231,7 @@ public class Player {
 					       aw.start();     
 					}
 					catch (Exception ez) {
-					    System.out.println("f");
+					    
 					}
 					passageX=getAvgTileX();
 					passageY=getAvgTileY();
@@ -237,13 +245,13 @@ public class Player {
 					//Må justere for å plassere midt på en tile, samtidig som vi må matche med parent.map
 				}
 			}
-			else if(key==KeyEvent.VK_ENTER)
+			/*else if(key==KeyEvent.VK_ENTER)
 			{
 				if(superPower>=100)
 				{
 					superPower();
 				}
-			}
+			}*/
 			
 		}
 		else if(type==PlayerType.Player2)
@@ -274,11 +282,44 @@ public class Player {
 			}
 			else if (key == KeyEvent.VK_T)
 			{
-				if (bombs.size()<maxBombs && !parent.isTrumpWall(Math.round(getX()/36),Math.round(getY()/36)+1))
+				if (bombs.size()<maxBombs && !parent.isBomb(getAvgTileX(), getAvgTileY()) && !parent.isPlayer(getAvgTileX(), getAvgTileY(), this))
 				{
 		
-					bombs.add(new Bomb("bomb.png", getAvgTileX()*36+ adjustX, getAvgTileY()*36 + adjustY, this, 
-							getAvgTileX(), getAvgTileY()));
+
+					//bombs.add(new Bomb("bomb.png", Math.round((getX()+spriteWidth)/36)*36+ adjustX, Math.round(getY()/36)*36+36 + adjustY, this, 
+							//getTileX(), getTileY()));
+					/*bombs.add(new Bomb("bomb.png",Math.round((getX()+spriteWidth)/36)*36,Math.round((getY()+30)/36)*36, this, 
+							Math.round((getX()+spriteWidth)/36), Math.round((getY()+30)/36)));
+*/
+					/*if (parent.isBoulder(getTileX(), getTileY()) || parent.isBox(getTileX(), getTileY()))
+					{
+						if (keysDown[1])
+						{
+							bombs.add(new Bomb("bomb.png", (getTileX()+1)*36+ adjustX, (getTileY())*36 + adjustY, this, 
+									getTileX()+1, getTileY()));
+						}
+						else if (keysDown[0])
+						{
+							bombs.add(new Bomb("bomb.png", (getTileX())*36+ adjustX, (getTileY()-1)*36 + adjustY, this, 
+									getTileX(), getTileY()-1));
+						}
+					}
+					else
+					{*/
+					try {
+						  AePlayWave aw = new AePlayWave( "blop.wav" );
+					       aw.start();     
+					}
+					catch (Exception ez) {
+					    
+					}
+					passageX=getAvgTileX();
+					passageY=getAvgTileY();
+						bombs.add(new Bomb("bomb.png", getAvgTileX()*36+ adjustX, getAvgTileY()*36 + adjustY, this, 
+								getAvgTileX(), getAvgTileY()));
+					//}
+					
+//>>>>>>> branch 'master' of https://github.com/KevinKaffe/spill
 					//parent.setTile((bomb.getX()+7)/36, (bomb.getY()+10)/36,new Boulder("boulder.png", bomb.getX()+7, bomb.getY()+10));
 					//System.out.println("X: " + bomb.getTileX() + "  Y: " + bomb.getTileY());
 					//Må justere for å plassere midt på en tile, samtidig som vi må matche med parent.map
@@ -295,7 +336,7 @@ public class Player {
 			{
 				parent.setTile(lowerTileX, lowerTileY, new TrumpWall("wall.png", lowerTileX*36, lowerTileY*36));
 				superPower-=100;
-				System.out.println(superPower);
+			
 				Board.get_ui().getElements().get(id).getIcons().get(2).updateWidth(superPower/6);
 			}
 			break;
@@ -319,7 +360,7 @@ public class Player {
 	{
 		if(invincibility<=0)
 		{
-			//this.hp--;
+			this.hp--;
 			
 			if (!(this instanceof NPC))
 			{
@@ -384,6 +425,10 @@ public class Player {
 		localTicker++;
 		if(dead)
 		{
+			if (!(this instanceof NPC) && !(parent.getMenu().isTwoPlayer()))
+			{
+				parent.setGameover();
+			}
 			for(Bomb b:bomb_removal_queue)
 			{
 				bombs.remove(b);
@@ -398,6 +443,11 @@ public class Player {
 		{
 			parent.setTile(lowerTileX, lowerTileY, new Boulder ("rip.png", lowerTileX*36, lowerTileY*36));
 			dead=true;
+			if (!(this instanceof NPC) && !(parent.getMenu().isTwoPlayer()))
+			{
+				parent.setGameover();
+			}
+			isDead=true;
 		
 		}
 		for(Bomb b:bomb_removal_queue)
@@ -451,7 +501,8 @@ public class Player {
 		{
 			image=trueImage;
 		}
-		
+		prevX=x;
+		prevY=y;
 		x += velX;
 		y += velY;
 		lowerTileX = Math.round(getX()/36);
@@ -491,7 +542,7 @@ public class Player {
 			}
 		}
 
-		if(!(passageX==getAvgTileX() && passageY==getAvgTileY()) && !flag)
+		if(!(passageX==getAvgTileX() && passageY==getAvgTileY()) && !flag && !(this instanceof NPC))
 		{
 			passageX=-1;
 			passageY=-1;
@@ -505,7 +556,26 @@ public class Player {
 					{
 						if(Math.abs(velX)+Math.abs(velY)==0)
 						{
-							x--;
+							if (parent.isBomb(lowerTileX, lowerTileY))
+							{
+								x++;
+								//y++;
+							}
+							else if(parent.isBomb(upperTileX, lowerTileY))
+							{
+								x--;
+								//y++;
+							}
+							else if(parent.isBomb(lowerTileX, upperTileY))
+							{
+								x++;
+								//y++;
+							}
+							else
+							{
+								x--;
+								//y--;
+							}
 						}
 						x-=velX;
 						y-=velY;
@@ -525,6 +595,7 @@ public class Player {
 	}
 	public boolean tileIsSafe(int tileX, int tileY, int lookRange)
 	{
+		
 		for(Bomb bomb: Bomb.getBombList())
 		{
 			if(bomb.getTileY() ==tileY  && Math.abs(bomb.getTileX()-tileX)<lookRange)
@@ -592,6 +663,10 @@ public class Player {
 	}
 	public boolean tileIsSafe(int tileX, int tileY)
 	{
+		if(parent.isBomb(tileX, tileY))
+		{
+			return false;
+		}
 		for(Bomb bomb: Bomb.getBombList())
 		{
 			if(bomb.getTileY() ==tileY  && Math.abs(bomb.getTileX()-tileX)<6)

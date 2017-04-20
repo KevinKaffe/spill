@@ -24,9 +24,10 @@ public class Board extends JPanel implements ActionListener {
 
 
 	private static final long serialVersionUID = 1L;
-
+	private boolean youwin = false;
+	private boolean gameover = false;
 	private boolean pause = false;
-
+	private AePlayWave aw;
 	private Timer timer;
 	private Mouse mouse;
     private final int DELAY = 1000/60;
@@ -68,6 +69,38 @@ public class Board extends JPanel implements ActionListener {
     		"HillarySprites/Behind/1.png",
     		"HillarySprites/Behind/0.png",
     		"HillarySprites/Behind/2.png"};
+    private String[] WomanNpcSprites = {"NPCWoman/Front/0.png",
+    		"NPCWoman/Front/1.png",
+    		"NPCWoman/Front/0.png",
+    		"NPCWoman/Front/2.png",
+    		"NPCWoman/Right/0.png",
+    		"NPCWoman/Right/1.png",
+    		"NPCWoman/Right/0.png",
+    		"NPCWoman/Right/2.png",
+    		"NPCWoman//Left/0.png",
+    		"NPCWoman//Left/1.png",
+    		"NPCWoman//Left/0.png",
+    		"NPCWoman//Left/2.png",
+    		"NPCWoman/Behind/0.png",
+    		"NPCWoman/Behind/1.png",
+    		"NPCWoman/Behind/0.png",
+    		"NPCWoman/Behind/2.png"};
+    private String[] ManNpcSprites = {"NpcMan/Front/0.png",
+    		"NpcMan/Front/1.png",
+    		"NpcMan/Front/0.png",
+    		"NpcMan/Front/2.png",
+    		"NpcMan/Right/0.png",
+    		"NpcMan/Right/1.png",
+    		"NpcMan/Right/0.png",
+    		"NpcMan/Right/2.png",
+    		"NpcMan//Left/0.png",
+    		"NpcMan//Left/1.png",
+    		"NpcMan//Left/0.png",
+    		"NpcMan//Left/2.png",
+    		"NpcMan/Behind/0.png",
+    		"NpcMan/Behind/1.png",
+    		"NpcMan/Behind/0.png",
+    		"NpcMan/Behind/2.png"};
     private Background bg;
     private static UserInterface UI;
     private Menu menu;
@@ -90,7 +123,13 @@ public class Board extends JPanel implements ActionListener {
         timer.start();
         bg = new Background("background.png");
         UI = new UserInterface(720-36,0);
-        
+		try {
+			  aw = new AePlayWave( "mercy.wav");
+		       aw.start();     
+		}
+		catch (Exception ez) {
+		    
+		}
 
     }
 
@@ -131,7 +170,7 @@ public class Board extends JPanel implements ActionListener {
     	sprites=new String[]{"SpeedUp/0.png", "SpeedUp/1.png", "SpeedUp/2.png", "SpeedUp/3.png", "SpeedUp/4.png", "SpeedUp/5.png"};
     	
     	powerupTable= Arrays.asList(speedUp, speedDown, speedMax, speedMin, fireUp, fireDown, fireMax, fireMin, bombUp, bombDown, bombMax, bombMin, bombPass, softPass, null);
-    	probableTable= Arrays.asList(2000.0  , 2000.0     , 2000.0     , 2000.0     , 10000.0  , 10.0    , 5.0    , 5.0    , 20.0  ,10.0     , 5.0    ,5.0     , 5.0     ,5.0      , 50.0);
+    	probableTable= Arrays.asList(30.0  , 10.0     , 4.0     , 2.0     , 30.0  , 10.0    , 4.0    , 2.0    , 30.0  ,10.0     , 4.0    ,2.0     , 2.0     ,2.0      , 300.0);
     }
     public void initMenu()
     {
@@ -142,8 +181,14 @@ public class Board extends JPanel implements ActionListener {
     }
     public void initPlayers()
     {
+    	Bomb.removeBombs();
+    	Fire.removeFires();
     	map = new ArrayList<>();
     	players = new ArrayList<>();
+    	gameover = false;
+    	youwin = false;
+    	pause = false;
+    	powerupBoard = new ArrayList<>();
   	    /*players.add(new Player(this, PlayerType.Player1,0));
   	    players.add(new Player(this, PlayerType.Player2,1));
   	    players.add(new NPC(this, PlayerType.AI,2));*/
@@ -317,7 +362,9 @@ public class Board extends JPanel implements ActionListener {
 		   		}
 		   	}
 		   	
-			if (pause)
+		   	if (!(menu.isTwoPlayer()))
+		   	{
+			if (pause && !gameover && players.size() != 1)
     		{
 				g2d.setFont(new Font("TimesRoman", Font.BOLD, 24));
 				g2d.setColor(Color.WHITE);
@@ -325,6 +372,79 @@ public class Board extends JPanel implements ActionListener {
     			g2d.setFont(new Font("TimesRoman", Font.PLAIN, 20));
     			g2d.drawString("press 'P' to continue", 300-35,720/2 + 20);
     		}
+			else if (gameover)
+			{
+				pause = true;
+				g2d.setFont(new Font("TimesRoman", Font.BOLD, 24));
+				g2d.setColor(Color.WHITE);
+    			g2d.drawString("GAME OVER", 300+5,720/2);
+    			g2d.setFont(new Font("TimesRoman", Font.PLAIN, 20));
+    			g2d.drawString("press escape to exit", 300-35,720/2 + 20);
+			}
+			else if (players.size() == 1)
+			{
+				pause = true;
+				g2d.setFont(new Font("TimesRoman", Font.BOLD, 24));
+				g2d.setColor(Color.WHITE);
+    			g2d.drawString("You win!", 300+5,720/2);
+    			g2d.setFont(new Font("TimesRoman", Font.PLAIN, 20));
+    			g2d.drawString("press escape to exit", 300-35,720/2 + 20);
+			}
+		   	}
+		   	else
+		   	{
+		   		boolean player1Dead = true;
+		   		boolean player2Dead = true;
+		   		for (Player player : players)
+		   		{
+		   			if (player.getId() == 1)
+		   			{
+		   				player1Dead = false;
+		   			}
+		   			else if (player.getId() == 2)
+		   			{
+		   				player2Dead = false;
+		   			}
+		   				
+		   		}
+		   		
+		   		if (pause && (!player1Dead  || !player2Dead) && players.size() != 1)
+	    		{
+					g2d.setFont(new Font("TimesRoman", Font.BOLD, 24));
+					g2d.setColor(Color.WHITE);
+	    			g2d.drawString("PAUSE", 300+5,720/2);
+	    			g2d.setFont(new Font("TimesRoman", Font.PLAIN, 20));
+	    			g2d.drawString("press 'P' to continue", 300-35,720/2 + 20);
+	    		}
+				else if (!player1Dead && player2Dead && players.size() == 1)
+				{
+					pause = true;
+					g2d.setFont(new Font("TimesRoman", Font.BOLD, 24));
+					g2d.setColor(Color.WHITE);
+	    			g2d.drawString("Player 1 won!", 300+5,720/2);
+	    			g2d.setFont(new Font("TimesRoman", Font.PLAIN, 20));
+	    			g2d.drawString("press escape to exit", 300-35,720/2 + 20);
+				}
+				else if (!player2Dead && player1Dead && players.size() == 1)
+				{
+					pause = true;
+					g2d.setFont(new Font("TimesRoman", Font.BOLD, 24));
+					g2d.setColor(Color.WHITE);
+	    			g2d.drawString("Player 2 won!", 300+5,720/2);
+	    			g2d.setFont(new Font("TimesRoman", Font.PLAIN, 20));
+	    			g2d.drawString("press escape to exit", 300-35,720/2 + 20);
+				}	
+				else if (player2Dead && player1Dead)
+				{
+					pause = true;
+					g2d.setFont(new Font("TimesRoman", Font.BOLD, 24));
+					g2d.setColor(Color.WHITE);
+	    			g2d.drawString("Game over", 300+5,720/2);
+	    			g2d.setFont(new Font("TimesRoman", Font.PLAIN, 20));
+	    			g2d.drawString("press escape to exit", 300-35,720/2 + 20);
+				}	
+		   	}
+			
        }
    }
 
@@ -384,6 +504,14 @@ public class Board extends JPanel implements ActionListener {
     {
     	return probableTable;
     }
+    public void setGameover()
+    {
+    	gameover = true;
+    }
+    public Menu getMenu()
+    {
+    	return menu;
+    }
     @Override
     public void actionPerformed(ActionEvent e) {
        
@@ -400,14 +528,15 @@ public class Board extends JPanel implements ActionListener {
                 	tile.tick();
             	}
             }
-            
+       
             for (Player player : players)
             {
+            	
+
             	 if (player instanceof NPC)
                  {
                   	((NPC) player).realTimeDecision();
                  }
-            	  
                 for(Bomb bomb:player.getBombs())
                 {
                 	bomb.tick();
@@ -420,6 +549,7 @@ public class Board extends JPanel implements ActionListener {
                 
               
             }
+
     	}
         repaint();
 
@@ -450,7 +580,9 @@ public class Board extends JPanel implements ActionListener {
         	{
         		players.clear();
         		menu.resetMenu();
-        		initPlayers();
+        		aw.stop();
+        		aw = new AePlayWave( "mercy.wav");
+ 		       aw.start(); 
         		state=State.MENU;
             	Board.getStaticBoard().addMyListener();
         	}
@@ -527,15 +659,19 @@ public class Board extends JPanel implements ActionListener {
     }
     
     public void ready()
-    {    	
+    {    
+    	players.clear();
+		initPlayers();
     	if (!menu.isTwoPlayer())
     	{
-    		players.add(new Player(this, PlayerType.Player1,0));
+    		players.add(new Player(this, PlayerType.Player1,1));
 			players.add(new NPC(this, PlayerType.AI,2));
+			players.add(new NPC(this, PlayerType.AI,3));
+			players.add(new NPC(this, PlayerType.AI,4));
     		//players.remove(1);
     		if (menu.isTrump())
         	{
-    			System.out.println("ALRIGHT");
+    			
         		//players.get(0).setImage(new ImageIcon("TrumpSprites/TrumpFront.png"));
         		players.get(0).setSprites(TrumpSprites,Character.Trump);
         	}
@@ -550,18 +686,25 @@ public class Board extends JPanel implements ActionListener {
     		
     		if (menu.isTrump())
     		{
-    			players.add(new Player(this, PlayerType.Player1,0));
-    			players.add(new NPC(this, PlayerType.AI,2));
+    			players.add(new Player(this, PlayerType.Player1,1));
+    			players.add(new Player(this, PlayerType.Player2,2));
+    			players.add(new NPC(this, PlayerType.AI,3));
+    			players.add(new NPC(this, PlayerType.AI,4));
 
         		//players.get(0).setImage(new ImageIcon("TrumpSprites/TrumpFront.png"));
         		players.get(0).setSprites(TrumpSprites,Character.Trump);
-        		players.get(1).setImage(new ImageIcon("hillaryHead.png"));
+        		players.get(1).setSprites(HillarySprites, Character.Hillary);
         	}
     		else
     		{
-    			//players.get(1).setImage(new ImageIcon("TrumpSprites/TrumpFront.png"));
-        		players.get(0).setSprites(TrumpSprites,Character.Trump);
-        		players.get(0).setImage(new ImageIcon("hillaryHead.png"));
+    			players.add(new Player(this, PlayerType.Player1,1));
+    			players.add(new Player(this, PlayerType.Player2,2));
+    			players.add(new NPC(this, PlayerType.AI,3));
+    			players.add(new NPC(this, PlayerType.AI,4));
+
+        		//players.get(0).setImage(new ImageIcon("TrumpSprites/TrumpFront.png"));
+    			players.get(1).setSprites(TrumpSprites,Character.Trump);
+        		players.get(0).setSprites(HillarySprites, Character.Hillary);
     		}
     	}
     	  
@@ -569,18 +712,32 @@ public class Board extends JPanel implements ActionListener {
     	{
     		if (npc.getId() == 2)
     		{
-    			npc.setImage(new ImageIcon("player.png"));
-    			npc.setSprites(HillarySprites, Character.Hillary);
+    			if (menu.isTrump())
+    			{
+        			npc.setSprites(HillarySprites, Character.Hillary);
+    			}
+    			else{
+        			npc.setSprites(TrumpSprites, Character.Hillary);
+    			}
+    			
     		}
     		else if (npc.getId() == 3)
     		{
-    			//sette image til npc nr 2
+    			npc.setSprites(WomanNpcSprites, Character.Hillary);
     		}
     		else if (npc.getId() == 4)
 			{
-    			//sette image til npc nr 3
+    			npc.setSprites(ManNpcSprites, Character.Hillary);
 			}			
     	}
+		try {
+				aw.stop();
+			  aw = new AePlayWave( "theDon.wav");
+		       aw.start();     
+		}
+		catch (Exception ez) {
+		    
+		}
     	this.removeMouseListener(mouse);
     	state = State.GAME;
     }
