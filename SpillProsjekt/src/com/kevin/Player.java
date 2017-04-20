@@ -16,7 +16,7 @@ public class Player {
 	
 	private static final double MAXSPEED=6, MINSPEED=1;
 	private static final int MAXBOMBS=6, MINBOMBS=1;
-	private int fireLevel;
+	protected int fireLevel;
 	protected boolean[] keysDown ={false,false,false,false};//For � ikke f� delay n�r man f�rst g�r en vei s� snur
 	protected int x, y,hp,maxBombs,id,invincibility;
 	private boolean dead;
