@@ -14,24 +14,33 @@ public class Powerup {
 		this.sprites=sprites;
 		this.effect=effect;
 		ticker=0;
+		img = (new ImageIcon(sprites[0])).getImage();
 	}
 	public void tick()
 	{
-		if(ticker%12<6)
-		{
-			System.out.println(sprites[ticker%6]);
-			img=(new ImageIcon(sprites[ticker%6])).getImage();
-		}
-		else
-		{
-			img=(new ImageIcon(sprites[5-ticker%6])).getImage();
-		}
+
 		if(tacker++%4==0)
+		{
+			if(ticker%12<6)
+			{
+				img=(new ImageIcon(sprites[ticker%6])).getImage();
+			}
+			else
+			{
+				img=(new ImageIcon(sprites[5-ticker%6])).getImage();
+			}
 			ticker++;
+		}
+
+	}
+	public Effect removeMe()
+	{
+		Board.getStaticBoard().removePowerup(this);
+		System.out.println("GG  no RE");
+		return effect;
 	}
 	public Image getImage()
 	{
-		System.out.println(x + " .. " + y);
 		return img;
 	}
 	public Effect getEffect()

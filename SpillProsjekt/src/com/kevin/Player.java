@@ -14,6 +14,8 @@ import javafx.scene.media.MediaPlayer;
 
 public class Player {
 	
+	private static final double MAXSPEED=6, MINSPEED=1;
+	private static final int MAXBOMBS=6, MINBOMBS=1;
 	private int fireLevel;
 	protected boolean[] keysDown ={false,false,false,false};//For � ikke f� delay n�r man f�rst g�r en vei s� snur
 	protected int x, y,hp,maxBombs,id,invincibility;
@@ -118,6 +120,10 @@ public class Player {
 	public int getY()
 	{
 		return y;
+	}
+	public int getAdjY()
+	{
+		return y-10;
 	}
 	public int getTileX()
 	{
@@ -322,6 +328,39 @@ public class Player {
 			invincibility=invincibilityCoolDownForAASjekkeOmSpillerenEndaKanDoEllerOmHanFortsattIkkeSkalMisteLivNaarHanBlirTruffetAvEnFlamme_DenneCooldownSkalVearePaaRundt100MS;
 		}
 	}
+	public void addEffect(Effect effect)
+	{
+		switch(effect)
+		{
+		case SpeedUp:
+			speed+=0.5;
+			if(speed>MAXSPEED)
+				speed=MAXSPEED;
+			break;
+		case SpeedDown:
+			speed-=0.5;
+			if(speed<MINSPEED)
+				speed=MINSPEED;
+			break;
+		case SpeedMax:
+			speed=MAXSPEED;
+			break;
+		case SpeedMin:
+			speed=MINSPEED;
+			break;
+		case BombUp:
+			maxBombs++;
+			break;
+		case BombDown:
+			maxBombs--;
+			break;
+		case BombMax:
+			maxBombs=MAXBOMBS;
+			break;
+		case BombMin:
+			maxBombs=MINBOMBS;
+		}
+	}
 	public void tick()
 	{
 		localTicker++;
@@ -448,6 +487,14 @@ public class Player {
 						y-=velY;
 					}
 
+			}
+		}
+		List<Powerup> powerups = Board.getStaticBoard().getPowerupBoard();
+		for(int i =0; i < powerups.size(); i++)
+		{
+			if(powerups.get(i).getX()/36 == getAvgTileX() && powerups.get(i).getY()/36 == getAvgTileY())
+			{
+				addEffect(powerups.get(i).removeMe());
 			}
 		}
 

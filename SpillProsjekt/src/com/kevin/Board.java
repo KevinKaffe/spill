@@ -130,7 +130,7 @@ public class Board extends JPanel implements ActionListener {
     	sprites=new String[]{"SpeedUp/0.png", "SpeedUp/1.png", "SpeedUp/2.png", "SpeedUp/3.png", "SpeedUp/4.png", "SpeedUp/5.png"};
     	
     	powerupTable= Arrays.asList(speedUp, speedDown, speedMax, speedMin, fireUp, fireDown, fireMax, fireMin, bombUp, bombDown, bombMax, bombMin, bombPass, softPass, null);
-    	probableTable= Arrays.asList(2000.0  , 10.0     , 5.0     , 5.0     , 20.0  , 10.0    , 5.0    , 5.0    , 20.0  ,10.0     , 5.0    ,5.0     , 5.0     ,5.0      , 50.0);
+    	probableTable= Arrays.asList(2000.0  , 2000.0     , 2000.0     , 2000.0     , 20.0  , 10.0    , 5.0    , 5.0    , 20.0  ,10.0     , 5.0    ,5.0     , 5.0     ,5.0      , 50.0);
     }
     public void initMenu()
     {
@@ -199,6 +199,10 @@ public class Board extends JPanel implements ActionListener {
         }
 
     }
+    public List<Powerup> getPowerupBoard()
+    {
+    	return powerupBoard;
+    }
     public void addPowerup(Powerup p)
     {
     	powerupBoard.add(p);
@@ -263,7 +267,7 @@ public class Board extends JPanel implements ActionListener {
     		}
 	        for (Player current : players)
 	        {
-	        	 g2d.drawImage(current.getImage(), current.getX(), current.getY(), this);
+	        	 g2d.drawImage(current.getImage(), current.getX(), current.getAdjY(), this);
 	        }
 	       
 	        
@@ -463,6 +467,13 @@ public class Board extends JPanel implements ActionListener {
 	   	{
 	    	if (i < fire.getBoundry(index))
 		   	 {
+	    		for(int j =0; j < powerupBoard.size(); j++)
+	    		{
+	    			if(powerupBoard.get(j).getX()/36==fire.getTileX()+posOrNegX*i && powerupBoard.get(j).getY()/36 == fire.getTileY() + posOrNegY*i)
+	    			{
+	    				powerupBoard.get(j).removeMe();
+	    			}
+	    		}
 		   		if (isBoulder(fire.getTileX()+posOrNegX*i, fire.getTileY() + posOrNegY*i))
 		   		{
 		   			break;
