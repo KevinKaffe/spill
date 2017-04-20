@@ -14,8 +14,11 @@ import javafx.scene.media.MediaPlayer;
 
 public class Player {
 	
-	private static final double MAXSPEED=4, MINSPEED=1;
+
+	private static final double MAXSPEED=6, MINSPEED=1;
+
 	private static final int MAXBOMBS=6, MINBOMBS=1, MINFIRE=2, MAXFIRE=11;
+
 	protected int fireLevel;
 	protected boolean[] keysDown ={false,false,false,false};//For � ikke f� delay n�r man f�rst g�r en vei s� snur
 	protected int x, y,hp,maxBombs,id,invincibility;

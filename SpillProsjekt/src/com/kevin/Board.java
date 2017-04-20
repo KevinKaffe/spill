@@ -93,6 +93,7 @@ public class Board extends JPanel implements ActionListener {
         
 
     }
+
     public void setPowerupTables()
     {
     	String[] sprites=new String[]{"SpeedUp/0.png", "SpeedUp/1.png", "SpeedUp/2.png", "SpeedUp/3.png", "SpeedUp/4.png", "SpeedUp/5.png"};
@@ -184,6 +185,7 @@ public class Board extends JPanel implements ActionListener {
         	 
         }
         
+
         for (int i = 1; i < 19; i+= 3)
         {
         	for (int j = 1; j < 18; j += 3)
@@ -197,6 +199,7 @@ public class Board extends JPanel implements ActionListener {
         		}
         	}    
         }
+
 
     }
     public List<Powerup> getPowerupBoard()
