@@ -54,7 +54,7 @@ public class Player {
 		superPower=600;
 		dead =false;
 		this.id=id;
-		maxBombs=1;
+		maxBombs=3;
 		this.type=type;
 		fireLevel = 3;
 		parent = board;
@@ -88,7 +88,7 @@ public class Player {
 		//y = 4*36;
 		velX = 0;
 		velY = 0;
-		speed = 2.0;
+		speed = 4.0;
 		lowerTileX = Math.round(x/36);
 		upperTileX=Math.round((x+spriteWidth)/36);
 		lowerTileY = Math.round(y/36) + 1;

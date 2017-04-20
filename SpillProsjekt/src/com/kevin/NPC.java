@@ -73,7 +73,6 @@ public class NPC extends Player{
 		}*/
 		if(!tileIsSafe(getAvgTileX(), getAvgTileY()) &&checkDangerDelay<=0 && path.isEmpty())
 		{
-			System.out.println(getClosestSafeTile(getAvgTileX(), getAvgTileY())+"  CLOSEST");
 			gotoTile(getClosestSafeTile(getAvgTileX(), getAvgTileY()));
 			checkDangerDelay=20;
 			if(!path.isEmpty())

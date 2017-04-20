@@ -184,7 +184,7 @@ public class Board extends JPanel implements ActionListener {
         	 
         }
         
-        for (int i = 1; i < 19; i+= 3)
+        /*for (int i = 1; i < 19; i+= 3)
         {
         	for (int j = 1; j < 18; j += 3)
         	{
@@ -196,7 +196,7 @@ public class Board extends JPanel implements ActionListener {
                 	setTile(i+1,j+1, new Box ("box.png", (i+1)*36, (j+1)*36));
         		}
         	}    
-        }
+        }*/
 
     }
     public List<Powerup> getPowerupBoard()
