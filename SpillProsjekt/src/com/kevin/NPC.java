@@ -8,6 +8,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class NPC extends Player{
 	
 	private int lookUp;
+	private int delay2;
 	private int lookDown;
 	private int lookLeft;
 	private int lookRight;
@@ -19,7 +20,7 @@ public class NPC extends Player{
 	private int decisionCount = 0;
 	private int preGameCap = 0;
 	private boolean madeDecision = false;
-	private int wait = 40; //tiden NPC venter mellom hvert valg
+	private int wait = 30; //tiden NPC venter mellom hvert valg
 	private int delay, checkDangerDelay, moveDelay; //For � optimalisere koden for maksimal effektivitet og minimal un�dvendig bruk av ressurser
 	private List<Pair> avoidDupes;
 	private int testX, testY;
@@ -29,7 +30,8 @@ public class NPC extends Player{
 	public NPC(Board board, PlayerType type, int id) 
 	{
 		super(board, type, id);
-		
+		delay2 = wait;
+		lookLength = fireLevel;
 		maxBombs = 1;
 		checkDangerDelay=0;
 		lookUp = lowerTileY - lookLength;
@@ -45,6 +47,7 @@ public class NPC extends Player{
 	//Ting som må sjekkes real time
 	public void realTimeDecision()
 	{
+		lookLength = fireLevel;
 		//oppdaterer verdier
 		lookUp = lowerTileY - lookLength;
 		lookDown = upperTileY + lookLength;
@@ -85,6 +88,8 @@ public class NPC extends Player{
 		stopBeforeFire(0,1);
 		stopBeforeFire(0,-1);
 */
+		
+		
 		if(!path.isEmpty())
 		{
 			boolean[] flag={false, false};
@@ -135,7 +140,7 @@ public class NPC extends Player{
 		}
 		else
 		{
-			//iSmart();
+			iSmart();
 		}
 		/*if(!path.isEmpty()&&moveDelay<=0)
 		{
@@ -161,24 +166,93 @@ public class NPC extends Player{
 	}
 	private boolean priOne()
 	{
+		List<Player> players = parent.getPlayers();
+		for (Player player : players)
+		{
+			if (!player.equals(this))
+			{
+				double difX = Math.abs(getAvgTileX() - player.getAvgTileX());
+				double difY = Math.abs(getAvgTileY() - player.getAvgTileY());
+				if (difX <= fireLevel && difY == 0)
+				{
+					return true;
+				}
+				if (difY <= fireLevel && difX == 0)
+				{
+					return true;
+				}
+			}
+		}
 		return false;
 	}
 	private boolean priTwo()
 	{
+		if (parent.isBox(getAvgTileX()+1, getAvgTileY()))
+		{
+			return true;
+		}
+		else if (parent.isBox(getAvgTileX()-1, getAvgTileY()))
+		{
+			return true;
+		}
+		else if (parent.isBox(getAvgTileX(), getAvgTileY()+1))
+		{
+			return true;
+		}
+		else if (parent.isBox(getAvgTileX(), getAvgTileY()-1))
+		{
+			return true;
+		}
 		return false;
 	}
-	private boolean priThree()
-	{
-		return false;
-	}
+
 	private void iSmart()
 	{
+		delay2--;
 		if(priOne())
-			return;
+		{
+			//legge ned bombe
+			if (bombs.size()<maxBombs && !parent.isBomb(getAvgTileX(), getAvgTileY()) && !parent.isPlayer(getAvgTileX(), getAvgTileY(), this))
+			{
+				bombs.add(new Bomb("bomb.png", getAvgTileX()*36+ adjustX, getAvgTileY()*36 + adjustY, this, 
+						getAvgTileX(), getAvgTileY()));
+			}
+		}
+			
 		else if(priTwo())
-			return;
-		else if(priThree())
-			return;
+		{
+			if (bombs.size()<maxBombs && !parent.isBomb(getAvgTileX(), getAvgTileY()) && !parent.isPlayer(getAvgTileX(), getAvgTileY(), this))
+			{
+				bombs.add(new Bomb("bomb.png", getAvgTileX()*36+ adjustX, getAvgTileY()*36 + adjustY, this, 
+						getAvgTileX(), getAvgTileY()));
+			}
+		}
+			
+		else if (delay2 <= 0)
+		{
+			delay2 = wait;
+			randomNumber = ThreadLocalRandom.current().nextInt(0, 4);
+			if (randomNumber == 0)
+			{
+				velX = 0; 
+				velY = -speed;
+			}
+			else if(randomNumber == 1)
+			{
+				velX = -speed;
+				velY = 0;
+			}
+			else if (randomNumber == 2)
+			{
+				velX = speed;
+				velY = 0;
+			}
+			else if (randomNumber == 3)
+			{
+				velY = speed;
+				velX = 0;
+			}
+		}
 	}
 	private Pair getClosestSafeTile(int tileX, int tileY)
 	{
@@ -643,13 +717,6 @@ public class NPC extends Player{
 		return false;
 	}
 }
-
-
-
-
-
-
-
 
 
 
