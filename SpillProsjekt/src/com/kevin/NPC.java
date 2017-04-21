@@ -13,7 +13,9 @@ public class NPC extends Player{
 	private int lookDown;
 	private int lookLeft;
 	private int lookRight;
+	private int iCounter=0;
 	private int lookLength = 4;
+	private int bombCounter=0;
 	private Stack<Node> path= new Stack<>();
 	private Stack<Node> path2= new Stack<>();
 	private double lastVelX = 0;
@@ -148,7 +150,7 @@ public class NPC extends Player{
 			}
 			if(prevX==x && prevY==y)
 			{
-				if(tickTackToe>=4)
+				if(tickTackToe>=1)
 				{
 					path=new Stack();
 					checkDangerDelay=0;
@@ -251,26 +253,57 @@ public class NPC extends Player{
 				path2.add(new Node(false,x+36*dx,y+36*dy));
 			}
 			//legge ned bombe
-			if (bombs.size()<maxBombs && !parent.isBomb(getAvgTileX(), getAvgTileY()) && !parent.isPlayer(getAvgTileX(), getAvgTileY(), this))
+			if (bombCounter>=80 || (bombs.size()<maxBombs && !parent.isBomb(getAvgTileX(), getAvgTileY()) && !parent.isPlayer(getAvgTileX(), getAvgTileY(), this)))
 			{
+				bombCounter=0;
+				try {
+					  AePlayWave aw = new AePlayWave( "blop.wav" );
+				       aw.start();     
+				}
+				catch (Exception ez) {
+				    
+				}
 				bombs.add(new Bomb("bomb.png", getAvgTileX()*36+ adjustX, getAvgTileY()*36 + adjustY, this, 
 						getAvgTileX(), getAvgTileY()));
 				delay2 = 110;
+			}
+			else
+			{
+				bombCounter++;
 			}
 		}
 			
 		else if(priTwo())
 		{
 			path2=new Stack();
-			if (bombs.size()<maxBombs && !parent.isBomb(getAvgTileX(), getAvgTileY()) && !parent.isPlayer(getAvgTileX(), getAvgTileY(), this))
+			if (bombCounter>=80 ||(bombs.size()<maxBombs && !parent.isBomb(getAvgTileX(), getAvgTileY()) && !parent.isPlayer(getAvgTileX(), getAvgTileY(), this)))
 			{
+				bombCounter=0;
+				try {
+					  AePlayWave aw = new AePlayWave( "blop.wav" );
+				       aw.start();     
+				}
+				catch (Exception ez) {
+				    
+				}
 				bombs.add(new Bomb("bomb.png", getAvgTileX()*36+ adjustX, getAvgTileY()*36 + adjustY, this, 
 						getAvgTileX(), getAvgTileY()));
 				delay2 = 110;
 			}
+			else
+			{
+				bombCounter++;
+			}
 		}
-		if(!path2.isEmpty())
+		else if(!path2.isEmpty())
 		{
+			iCounter++;
+			if(iCounter>=90)
+			{
+				iCounter=0;
+				path2=new Stack<>();
+				return;
+			}
 			boolean[] flag={false, false};
 			if(path2.get(path2.size()-1).getX() -this.x> this.speed*0.7)
 			{

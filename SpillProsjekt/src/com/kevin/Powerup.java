@@ -1,7 +1,9 @@
 package com.kevin;
 
 import java.awt.Image;
+import java.io.InputStream;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
 public class Powerup {
@@ -14,7 +16,7 @@ public class Powerup {
 		this.sprites=sprites;
 		this.effect=effect;
 		ticker=0;
-		img = (new ImageIcon(sprites[0])).getImage();
+		changeImg(sprites[0]);
 	}
 	public void tick()
 	{
@@ -23,20 +25,31 @@ public class Powerup {
 		{
 			if(ticker%12<6)
 			{
-				img=(new ImageIcon(sprites[ticker%6])).getImage();
+				changeImg(sprites[ticker%6]);
 			}
 			else
 			{
-				img=(new ImageIcon(sprites[5-ticker%6])).getImage();
+				changeImg(sprites[5-ticker%6]);
 			}
 			ticker++;
 		}
 
 	}
+	public void changeImg(String imgSrc)
+	{
+		InputStream is = this.getClass().getClassLoader().getResourceAsStream(imgSrc);
+		try{
+			ImageIcon ii = new ImageIcon(ImageIO.read(is));
+			img=ii.getImage();
+		}
+		catch(Exception e)
+		{
+			
+		}
+	}
 	public Effect removeMe()
 	{
 		Board.getStaticBoard().removePowerup(this);
-		System.out.println("GG  no RE");
 		return effect;
 	}
 	public Image getImage()

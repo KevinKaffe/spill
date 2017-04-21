@@ -14,5 +14,6 @@ public enum Effect {
 	BombMax,
 	BombMin,
 	BombPass,
-	SoftPass
+	SoftPass,
+	NULLEffect
 }

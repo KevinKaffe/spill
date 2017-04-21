@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
 import java.awt.Color;
@@ -12,6 +13,8 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.io.File;
+import java.io.InputStream;
 public class Menu{
 	
 	public boolean start;
@@ -43,12 +46,31 @@ public class Menu{
 	private Board parent;
 	private Image background;
 
-	
+	/*private static void getAllFiles(File curDir)
+	{
+		File[] fileList = curDir.listFiles();
+		for(File f : fileList)
+		{
+			if(f.isDirectory())
+				System.out.println(f.getName());
+			if(f.isFile())
+				System.out.println(f.getName());
+		}
+	}*/
 	public Menu (Board parent) 
 	{
-		
-		ImageIcon ii = new ImageIcon("greenBlueBack.jpg");
-		background = ii.getImage();
+		/*File curDir = new File("./src");
+		getAllFiles(curDir);*/
+		InputStream is = this.getClass().getClassLoader().getResourceAsStream("greenBlueBack.jpg");
+		try{
+			ImageIcon ii = new ImageIcon(ImageIO.read(is));
+			background = ii.getImage();
+		}
+		catch(Exception e)
+		{
+			
+		}
+
 		
 		this.parent = parent;
 		
@@ -81,9 +103,9 @@ public class Menu{
 		howToPlayBtnHover.addImage("HowToPlayBtnHover.png", 0, 0);
 	
 		
-		backBtn = new Element(50, 100);
+		backBtn = new Element(50, 50);
 		backBtn.addImage("BackBtn.png", 0, 0);
-		backBtnHover = new Element(50, 100);
+		backBtnHover = new Element(50, 50);
 		backBtnHover.addImage("BackBtnHover.png", 0, 0);
 		
 		resetMenu();
@@ -113,25 +135,55 @@ public class Menu{
 		g2d.drawImage(getImage(), 0, 0, parent);
 		if (!start && !howToPlay)
 		{
-			g2d.drawImage(new ImageIcon("Trump.png").getImage(), 25, 300, parent);
-			g2d.drawImage(new ImageIcon("Hillary.png").getImage(), 76, 470, parent);
-			g2d.drawImage(new ImageIcon("bomb.png").getImage(), 140, 570, parent);
-			g2d.drawImage(new ImageIcon("snakkeboble.png").getImage(), 170, 250, parent);
+			InputStream is = this.getClass().getClassLoader().getResourceAsStream("Trump.png");
+			try{
+				ImageIcon ii = new ImageIcon(ImageIO.read(is));
+				g2d.drawImage(ii.getImage(), 25, 300, parent);
+				is = this.getClass().getClassLoader().getResourceAsStream("snakkeboble.png");
+				ii = new ImageIcon(ImageIO.read(is));
+				g2d.drawImage(ii.getImage(), 170, 250, parent);
+			}
+			catch(Exception e)
+			{
+				
+			}
+			//g2d.drawImage(new ImageIcon("Trump.png").getImage(), 25, 300, parent);
+			//g2d.drawImage(new ImageIcon("Hillary.png").getImage(), 76, 470, parent);
+			//g2d.drawImage(new ImageIcon("bomb.png").getImage(), 140, 570, parent);
+			//g2d.drawImage(new ImageIcon("snakkeboble.png").getImage(), 170, 250, parent);
 			g2d.drawString("Grab em'" ,200, 325);
 			g2d.drawString("by the pussy!" ,200, 355);
 		}
 
 		else if (!start && howToPlay)
 		{
+			InputStream is = this.getClass().getClassLoader().getResourceAsStream("Controls_Player1.png");
+			try{
+				ImageIcon ii = new ImageIcon(ImageIO.read(is));
+				g2d.drawImage(ii.getImage(), 100, 250, parent);
+				is = this.getClass().getClassLoader().getResourceAsStream("Controls_Player2.png");
+				ii = new ImageIcon(ImageIO.read(is));
+				g2d.drawImage(ii.getImage(), 500, 250, parent);
+				is = this.getClass().getClassLoader().getResourceAsStream("otherInstructions.png");
+				ii = new ImageIcon(ImageIO.read(is));
+				g2d.drawImage(ii.getImage(), 100, 450, parent);
+			}
+			catch(Exception e)
+			{
+				
+			}
 			g2d.setFont(new Font("TimesRoman", Font.BOLD, 36));
 			g2d.setColor(Color.WHITE);
-			g2d.drawString("How to play" ,295, 325);
+			g2d.drawString("How to play" ,295, 50);
 			g2d.setColor(Color.BLACK);
 			g2d.setFont(new Font("TimesRoman", Font.PLAIN, 28));
-			g2d.drawString("Controls" ,150, 385);
+			g2d.drawString("Controls" ,335, 185);
 			g2d.setFont(new Font("TimesRoman", Font.ITALIC, 24));
-			g2d.drawString("Player 1:" ,100, 435);
-			g2d.drawImage(new ImageIcon("Controls_Player1.png").getImage(), 100, 450, parent);
+			g2d.drawString("Player 1:" ,100, 235);
+			//g2d.drawImage(new ImageIcon("Controls_Player1.png").getImage(), 100, 250, parent);
+			g2d.drawString("Player 2:" ,500, 235);
+			//g2d.drawImage(new ImageIcon("Controls_Player2.png").getImage(), 500, 250, parent);
+			//g2d.drawImage(new ImageIcon("otherInstructions.png").getImage(), 100, 450, parent);
 			//g2d.drawString("Player 2:" ,100, 550);
 		}
 		else if (start && !playerAmount)
@@ -149,8 +201,20 @@ public class Menu{
 			g2d.drawString("while player 2 automaticly playes the other character" ,125, 380);
 		}
 		
-		
-		g2d.drawImage(new ImageIcon("Title.png").getImage(), 200, 5, parent);
+		if(!howToPlay)
+		{
+			InputStream is = this.getClass().getClassLoader().getResourceAsStream("Title.png");
+			try{
+				ImageIcon ii = new ImageIcon(ImageIO.read(is));
+				g2d.drawImage(ii.getImage(), 200, 5, parent);
+			}
+			catch(Exception e)
+			{
+				
+			}
+			
+		}
+
 		for (Element btn : buttons)
 		{
 			for(Triplette icon : btn.getIcons())

@@ -22,7 +22,7 @@ import javax.swing.Timer;
 
 public class Board extends JPanel implements ActionListener {
 
-
+	private final int BGLENGTH=87;
 	private static final long serialVersionUID = 1L;
 	private boolean youwin = false;
 	private boolean gameover = false;
@@ -31,6 +31,8 @@ public class Board extends JPanel implements ActionListener {
 	private Timer timer;
 	private Mouse mouse;
     private final int DELAY = 1000/60;
+    private double seconds=0;
+    private double secondsMenu=0;
     private List<Player> players;
     private List<List<Tile>> map;
     private static Board staticBoard;
@@ -45,10 +47,10 @@ public class Board extends JPanel implements ActionListener {
     		"TrumpSprites/Right/1.png",
     		"TrumpSprites/Right/0.png",
     		"TrumpSprites/Right/2.png",
-    		"TrumpSprites//Left/0.png",
-    		"TrumpSprites//Left/1.png",
-    		"TrumpSprites//Left/0.png",
-    		"TrumpSprites//Left/2.png",
+    		"TrumpSprites/Left/0.png",
+    		"TrumpSprites/Left/1.png",
+    		"TrumpSprites/Left/0.png",
+    		"TrumpSprites/Left/2.png",
     		"TrumpSprites/Behind/0.png",
     		"TrumpSprites/Behind/1.png",
     		"TrumpSprites/Behind/0.png",
@@ -61,10 +63,10 @@ public class Board extends JPanel implements ActionListener {
     		"HillarySprites/Right/1.png",
     		"HillarySprites/Right/0.png",
     		"HillarySprites/Right/2.png",
-    		"HillarySprites//Left/0.png",
-    		"HillarySprites//Left/1.png",
-    		"HillarySprites//Left/0.png",
-    		"HillarySprites//Left/2.png",
+    		"HillarySprites/Left/0.png",
+    		"HillarySprites/Left/1.png",
+    		"HillarySprites/Left/0.png",
+    		"HillarySprites/Left/2.png",
     		"HillarySprites/Behind/0.png",
     		"HillarySprites/Behind/1.png",
     		"HillarySprites/Behind/0.png",
@@ -77,10 +79,10 @@ public class Board extends JPanel implements ActionListener {
     		"NPCWoman/Right/1.png",
     		"NPCWoman/Right/0.png",
     		"NPCWoman/Right/2.png",
-    		"NPCWoman//Left/0.png",
-    		"NPCWoman//Left/1.png",
-    		"NPCWoman//Left/0.png",
-    		"NPCWoman//Left/2.png",
+    		"NPCWoman/Left/0.png",
+    		"NPCWoman/Left/1.png",
+    		"NPCWoman/Left/0.png",
+    		"NPCWoman/Left/2.png",
     		"NPCWoman/Behind/0.png",
     		"NPCWoman/Behind/1.png",
     		"NPCWoman/Behind/0.png",
@@ -93,10 +95,10 @@ public class Board extends JPanel implements ActionListener {
     		"NpcMan/Right/1.png",
     		"NpcMan/Right/0.png",
     		"NpcMan/Right/2.png",
-    		"NpcMan//Left/0.png",
-    		"NpcMan//Left/1.png",
-    		"NpcMan//Left/0.png",
-    		"NpcMan//Left/2.png",
+    		"NpcMan/Left/0.png",
+    		"NpcMan/Left/1.png",
+    		"NpcMan/Left/0.png",
+    		"NpcMan/Left/2.png",
     		"NpcMan/Behind/0.png",
     		"NpcMan/Behind/1.png",
     		"NpcMan/Behind/0.png",
@@ -124,7 +126,7 @@ public class Board extends JPanel implements ActionListener {
         bg = new Background("background.png");
         UI = new UserInterface(720-36,0);
 		try {
-			  aw = new AePlayWave( "mercy.wav");
+			  aw = new AePlayWave( "menu.wav");
 		       aw.start();     
 		}
 		catch (Exception ez) {
@@ -169,7 +171,7 @@ public class Board extends JPanel implements ActionListener {
     	
     	sprites=new String[]{"SpeedUp/0.png", "SpeedUp/1.png", "SpeedUp/2.png", "SpeedUp/3.png", "SpeedUp/4.png", "SpeedUp/5.png"};
     	
-    	powerupTable= Arrays.asList(speedUp, speedDown, speedMax, speedMin, fireUp, fireDown, fireMax, fireMin, bombUp, bombDown, bombMax, bombMin, bombPass, softPass, null);
+    	powerupTable= Arrays.asList(speedUp, speedDown, speedMax, speedMin, fireUp, fireDown, fireMax, fireMin, bombUp, bombDown, bombMax, bombMin, bombPass, softPass,null);
     	probableTable= Arrays.asList(30.0  , 10.0     , 4.0     , 2.0     , 30.0  , 10.0    , 4.0    , 2.0    , 30.0  ,10.0     , 4.0    ,2.0     , 2.0     ,2.0      , 300.0);
     }
     public void initMenu()
@@ -221,9 +223,9 @@ public class Board extends JPanel implements ActionListener {
         	map.add(temp);
         }
         
-        for (int i = 3; i < 16; i += 3)
+        for (int i = 2; i < 18; i += 2)
         {
-        	for (int j = 3; j < 16; j += 3)
+        	for (int j = 2; j < 18; j += 2)
         	{
         		setTile(i,j,new Boulder("boulder.png", i*36, j*36));
         	}
@@ -237,10 +239,32 @@ public class Board extends JPanel implements ActionListener {
         	{
         		if (!(j == 1 && i == 1 ) && !(i == 1 && j == 16) && !(i == 16 && j == 1) && !(i == 16 && j == 16))
         		{
-            	  	setTile(i,j, new Box ("box.png", (i)*36, (j)*36));
-                	setTile(i,j+1, new Box ("box.png", (i)*36, (j+1)*36));
-                	setTile(i+1,j, new Box ("box.png", (i+1)*36, (j)*36));
-                	setTile(i+1,j+1, new Box ("box.png", (i+1)*36, (j+1)*36));
+        			if(!isBoulder(i,j))
+        				setTile(i,j, new Box ("box.png", (i)*36, (j)*36));
+        			if(!isBoulder(i,j+1))
+        				setTile(i,j+1, new Box ("box.png", (i)*36, (j+1)*36));
+        			if(!isBoulder(i+1,j))
+        				setTile(i+1,j, new Box ("box.png", (i+1)*36, (j)*36));
+        			if(!isBoulder(i+1,j+1))
+        				setTile(i+1,j+1, new Box ("box.png", (i+1)*36, (j+1)*36));
+        		}
+        	}
+        	
+        }
+        for (int i = 3; i < 15; i+= 1)
+        {
+        	for (int j = 3; j < 15; j += 1)
+        	{
+        		if (!(j == 1 && i == 1 ) && !(i == 1 && j == 16) && !(i == 16 && j == 1) && !(i == 16 && j == 16))
+        		{
+        			if(!isBoulder(i,j))
+        				setTile(i,j, new Box ("box.png", (i)*36, (j)*36));
+        			if(!isBoulder(i,j+1))
+        				setTile(i,j+1, new Box ("box.png", (i)*36, (j+1)*36));
+        			if(!isBoulder(i+1,j))
+        				setTile(i+1,j, new Box ("box.png", (i+1)*36, (j)*36));
+        			if(!isBoulder(i+1,j+1))
+        				setTile(i+1,j+1, new Box ("box.png", (i+1)*36, (j+1)*36));
         		}
         	}    
         }
@@ -323,22 +347,25 @@ public class Board extends JPanel implements ActionListener {
 	       
 	        
 	        //---------- BOMBS'N EXPLOTIONS -----------------------
-	        for (Player current : players)
+	        //for (Player current : players)
+	        for(int j =0; j<players.size(); j++)
 	        {
+	        	Player current = players.get(j);
 	            for(Bomb bomb:current.getBombs())
 	            {
 	            	g2d.drawImage(bomb.getImage(),bomb.getX(), bomb.getY(), this);
 	            }
-	            for(Fire fire: current.getFires())
+	            //for(Fire fire: current.getFires())
+	            for(int i =0; i < current.getFires().size(); i++)
 	            {
 	
-	       	   	 explotionRealTime(g2d, fire, 1,0, 0, current);
+	       	   	 explotionRealTime(g2d, current.getFires().get(i), 1,0, 0, current);
 	
-	      	   	 explotionRealTime(g2d, fire, -1,0, 1, current);
+	      	   	 explotionRealTime(g2d, current.getFires().get(i), -1,0, 1, current);
 	
-	      	   	 explotionRealTime(g2d, fire, 0,1, 2, current);
+	      	   	 explotionRealTime(g2d, current.getFires().get(i), 0,1, 2, current);
 	
-	      	   	 explotionRealTime(g2d, fire, 0,-1, 3, current);
+	      	   	 explotionRealTime(g2d, current.getFires().get(i), 0,-1, 3, current);
 	            }
 	        	if (current.getIsDead())
 	        	{
@@ -514,9 +541,34 @@ public class Board extends JPanel implements ActionListener {
     }
     @Override
     public void actionPerformed(ActionEvent e) {
-       
+       if(state==State.GAME)
+       {
+    	   secondsMenu=0;
+    	   seconds+=1.0/60.0;
+    	   if(seconds>=BGLENGTH)
+    	   {
+    		   aw.stop();
+    		   aw = new AePlayWave( "bgmusic.wav");
+ 		       aw.start(); 
+ 		       seconds=0;
+    		   
+    	   }
+       }
+       else
+       {
+    	   seconds=0;
+    	   secondsMenu+=1.0/60.0;
+    	   if(secondsMenu>=30)
+    	   {
+    		   aw.stop();
+    		   aw=new AePlayWave("menu.wav");
+    		   aw.start();
+    		   secondsMenu=0;
+    	   }
+       }
     	if (state == State.GAME && !pause)
     	{
+    		
     		for(Powerup p: powerupBoard)
     		{
     			p.tick();
@@ -581,7 +633,7 @@ public class Board extends JPanel implements ActionListener {
         		players.clear();
         		menu.resetMenu();
         		aw.stop();
-        		aw = new AePlayWave( "mercy.wav");
+        		aw = new AePlayWave( "menu.wav");
  		       aw.start(); 
         		state=State.MENU;
             	Board.getStaticBoard().addMyListener();
@@ -610,17 +662,19 @@ public class Board extends JPanel implements ActionListener {
 	    			if(powerupBoard.get(j).getX()/36==fire.getTileX()+posOrNegX*i && powerupBoard.get(j).getY()/36 == fire.getTileY() + posOrNegY*i)
 	    			{
 	    				powerupBoard.get(j).removeMe();
+	    				j--;
 	    			}
 	    		}
 		   		if (isBoulder(fire.getTileX()+posOrNegX*i, fire.getTileY() + posOrNegY*i))
 		   		{
 		   			break;
 		   		}
-		   		for(Bomb bomb:Bomb.getBombList())
+		   		for(int j =0; j < Bomb.getBombList().size(); j++)
 		   		{
-		   			if(fire.getTileX()+posOrNegX*i==bomb.getTileX() &&  fire.getTileY() + posOrNegY*i==bomb.getTileY())
+		   			if(fire.getTileX()+posOrNegX*i==Bomb.getBombList().get(j).getTileX() &&  fire.getTileY() + posOrNegY*i==Bomb.getBombList().get(j).getTileY())
 		   			{
-		   				bomb.explodeMe();
+		   				Bomb.getBombList().get(j).explodeMe();
+		   				j--;
 		   			}
 		   		}
 		   		if (isBox(fire.getTileX() + posOrNegX*i, fire.getTileY() + posOrNegY*i))
@@ -732,7 +786,7 @@ public class Board extends JPanel implements ActionListener {
     	}
 		try {
 				aw.stop();
-			  aw = new AePlayWave( "theDon.wav");
+			  aw = new AePlayWave( "bgmusic.wav");
 		       aw.start();     
 		}
 		catch (Exception ez) {

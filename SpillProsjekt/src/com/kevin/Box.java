@@ -12,14 +12,11 @@ public class Box extends Tile {
 	}
 	public void ripMe()
 	{
-		System.out.println("AAA");
 		powerupTable = Board.getPowerupTable();
 		probabilityTable = Board.getProbableTable();
 		double sum=0;
-		System.out.println(probabilityTable.get(0));
 		for(double d:probabilityTable)
 		{
-			System.out.println(d);
 			sum+=d;
 		}
 		Random rand = new Random();
@@ -29,7 +26,7 @@ public class Box extends Tile {
 			random-=probabilityTable.get(i);
 			if(random<=0)
 			{
-				if(probabilityTable.get(i)==null)
+				if(powerupTable.get(i)==null)
 				{
 					return;
 				}

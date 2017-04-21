@@ -3,10 +3,12 @@ package com.kevin;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
 import javafx.scene.media.Media;
@@ -62,27 +64,35 @@ public class Player {
 		parent = board;
 		ImageIcon ii;
 		ii = new ImageIcon("player.png");
+		InputStream is = this.getClass().getClassLoader().getResourceAsStream("player.png");
+		try{
+			ii = new ImageIcon(ImageIO.read(is));
+		}
+		catch(Exception e)
+		{
+			
+		}
 		if (id == 1)
 		{
 			ii = new ImageIcon("player.png");
-			x = 2*36;
-			y = 2*36;
+			x = 1*36;
+			y = 1*36;
 		}
 		else if (id == 2){
 			ii = new ImageIcon("player.png");
-			x = 16*36;
-			y = 16*36;
+			x = 17*36;
+			y = 17*36;
 		}
 		else if(id==3){
 			ii = new ImageIcon("player.png");
-			x = 2*36;
-			y = 16*36;
+			x = 1*36;
+			y = 17*36;
 		}
 		else if(id==4)
 		{
 			ii = new ImageIcon("player.png");
-			x=16*36;
-			y=2*36;
+			x=17*36;
+			y=1*36;
 		}
 		trueImage=ii.getImage();
 		image = ii.getImage();
@@ -109,10 +119,19 @@ public class Player {
 		return id;
 	}
 
-	public void setImage(ImageIcon ii)
+	public void setImage(String input)//ImageIcon ii)
 	{
-		image = ii.getImage();
-		trueImage = ii.getImage();
+		InputStream is = this.getClass().getClassLoader().getResourceAsStream(input);
+		try{
+			ImageIcon ii = new ImageIcon(ImageIO.read(is));
+			image = ii.getImage();
+			trueImage = ii.getImage();
+		}
+		catch(Exception e)
+		{
+			
+		}
+
 	}
 	public boolean getIsDead()
 	{
@@ -178,13 +197,13 @@ public class Player {
 		{
 			if(key == KeyEvent.VK_LEFT)
 			{
-				walkState=1;
+				walkState=2;
 				keysDown[1]=true;
 				velX = -speed;
 			}
 			else if(key==KeyEvent.VK_RIGHT)
 			{
-				walkState=2;
+				walkState=1;
 				keysDown[2]=true;
 				velX = speed;
 			}
@@ -362,9 +381,9 @@ public class Player {
 		{
 			this.hp--;
 			
-			if (!(this instanceof NPC))
+			if (true)//!(this instanceof NPC))
 			{
-				Board.get_ui().getElements().get(id).getStrings().get(0).updateString("X  "+ Integer.toString(hp));
+				Board.get_ui().getElements().get(id-1).getStrings().get(0).updateString("X  "+ Integer.toString(hp));
 			}
 			
 			invincibility=invincibilityCoolDownForAASjekkeOmSpillerenEndaKanDoEllerOmHanFortsattIkkeSkalMisteLivNaarHanBlirTruffetAvEnFlamme_DenneCooldownSkalVearePaaRundt100MS;
@@ -392,9 +411,17 @@ public class Player {
 			break;
 		case BombUp:
 			maxBombs++;
+			if(maxBombs>MAXBOMBS)
+			{
+				maxBombs=MAXBOMBS;
+			}
 			break;
 		case BombDown:
 			maxBombs--;
+			if(maxBombs<MINBOMBS)
+			{
+				maxBombs=MINBOMBS;
+			}
 			break;
 		case BombMax:
 			maxBombs=MAXBOMBS;
@@ -441,7 +468,7 @@ public class Player {
 		}
 		if(hp<=0)
 		{
-			parent.setTile(lowerTileX, lowerTileY, new Boulder ("rip.png", lowerTileX*36, lowerTileY*36));
+			parent.setTile(getAvgTileX(), getAvgTileY(), new Boulder ("rip.png", getAvgTileX()*36, getAvgTileY()*36));
 			dead=true;
 			if (!(this instanceof NPC) && !(parent.getMenu().isTwoPlayer()))
 			{
@@ -487,7 +514,7 @@ public class Player {
 			superPower+=100;
 			Board.get_ui().getElements().get(id).getIcons().get(2).updateWidth(superPower/6+0.1);
 		}
-		this.setImage(new ImageIcon(sprites[spriteState%4 + 4*walkState]));
+		this.setImage(sprites[spriteState%4 + 4*walkState]);
 		}
 		if(invincibility>0)
 		{

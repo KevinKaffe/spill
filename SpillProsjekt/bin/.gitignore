@@ -1,11 +1,11 @@
-/OKDOK/
 /com/
-/images/
 /BackBtn.png
 /BackBtnHover.png
 /Controls_Player1.png
+/Controls_Player2.png
 /FireDown/
 /FireMax/
+/FireMin/
 /FireUp/
 /Hillary.png
 /HillarySprites/
@@ -16,9 +16,7 @@
 /NpcMan/
 /OnePlayeBtn.png
 /OnePlayerBtnHover.png
-/ResourceFolder/
 /SUPERGAME.jar
-/SUPERGAME_lib/
 /SpeedDown/
 /SpeedMax/
 /SpeedMin/
@@ -32,6 +30,8 @@
 /asfalt.jpg
 /backGrey.jpg
 /background.png
+/bgmusic-gammel1.wav
+/bgmusic.wav
 /bilder.zip
 /block.png
 /block2.png
@@ -39,6 +39,10 @@
 /blop.mp3
 /blop.wav
 /bomb.png
+/bombDown/
+/bombMax/
+/bombMin/
+/bombUp/
 /boulder.png
 /boulderNRS.png
 /box.png
@@ -59,8 +63,10 @@
 /hs_err_pid23357.log
 /hs_err_pid23365.log
 /interface_background.png
+/menu.wav
 /mercy.wav
 /mex.jpg
+/otherInstructions.png
 /player.png
 /rip.png
 /road.png
@@ -77,3 +83,4 @@
 /twoPlayerBtnHover.png
 /wall.png
 /whiteBackground.jpg
+/menu-gammel1.wav

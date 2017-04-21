@@ -1,7 +1,11 @@
 package com.kevin;
 
+import java.io.BufferedInputStream;
 import java.io.File; 
-import java.io.IOException; 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+
 import javax.sound.sampled.AudioFormat; 
 import javax.sound.sampled.AudioInputStream; 
 import javax.sound.sampled.AudioSystem; 
@@ -24,6 +28,7 @@ public class AePlayWave extends Thread {
     };
  
     public AePlayWave(String wavfile) { 
+    	//InputStream is = getClass().getResourceAsStream(wavfile);
         filename = wavfile;
         curPosition = Position.NORMAL;
     } 
@@ -35,15 +40,16 @@ public class AePlayWave extends Thread {
  
     public void run() { 
  
-        File soundFile = new File(filename);
-        if (!soundFile.exists()) { 
+        //InputStream soundFile =getClass().getResourceAsStream(filename);
+        /*if (!soundFile.exists()) { 
             System.err.println("Wave file not found: " + filename);
             return;
-        } 
+        } */
+    	InputStream is= getClass().getClassLoader().getResourceAsStream(filename);
  
-        AudioInputStream audioInputStream = null;
+        AudioInputStream audioInputStream;
         try { 
-            audioInputStream = AudioSystem.getAudioInputStream(soundFile);
+        	audioInputStream = AudioSystem.getAudioInputStream(new BufferedInputStream(is));
         } catch (UnsupportedAudioFileException e1) { 
             e1.printStackTrace();
             return;

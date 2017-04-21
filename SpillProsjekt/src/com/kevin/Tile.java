@@ -1,7 +1,9 @@
 package com.kevin;
 
 import java.awt.Image;
+import java.io.InputStream;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
 public class Tile implements Cloneable{
@@ -11,13 +13,21 @@ public class Tile implements Cloneable{
 	private int priority;
 	public Tile(String imgSrc,int x,int y)
 	{
-		ImageIcon ii = new ImageIcon(imgSrc);
-		image = ii.getImage();
+		InputStream is = this.getClass().getClassLoader().getResourceAsStream(imgSrc);
+		try{
+			ImageIcon ii = new ImageIcon(ImageIO.read(is));
+			image = ii.getImage();
+		}
+		catch(Exception e)
+		{
+			
+		}
 		this.x=x;
 		this.y=y;
 	}
 	public Tile(Tile tile)
 	{
+		
 		this.image=tile.image;
 		this.x=tile.x;
 		this.y=tile.y;

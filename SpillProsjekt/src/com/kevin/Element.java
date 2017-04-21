@@ -1,9 +1,11 @@
 package com.kevin;
 
 import java.awt.Image;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
 public class Element {
@@ -21,8 +23,16 @@ public class Element {
 	}
 	public void addImage(String imgSrc, int x, int y)
 	{
-		ImageIcon ii = new ImageIcon(imgSrc);
-		icons.add(new Triplette(ii.getImage(),x+this.x,y+this.y));
+		InputStream is = this.getClass().getClassLoader().getResourceAsStream(imgSrc);
+		try{
+			ImageIcon ii = new ImageIcon(ImageIO.read(is));
+			icons.add(new Triplette(ii.getImage(),x+this.x,y+this.y));
+		}
+		catch(Exception e)
+		{
+			
+		}
+
 	}
 
 	public List<Triplette> getIcons()
